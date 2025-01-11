@@ -1,0 +1,388 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="/stylesheets/style.css"><link rel="icon" href="/images/favicon.ico"><link rel="apple-touch-icon" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><title>Архитектура многопоточных приложений | by Igor Riakhovskii</title><meta name="description" content="Статья не претендует на полноту, в ней описан личный опыт разработки сетевых приложений на C, node.js и golang. В каждом языке программирования свои..."><meta property="og:title" content="Архитектура многопоточных приложений"><meta property="og:description" content="Статья не претендует на полноту, в ней описан личный опыт разработки сетевых приложений на C, node.js и golang. В каждом языке программирования свои..."><meta property="og:type" content="article"><meta property="article:published_time" content="2021-11-04T21:00:00+03:00"><meta property="article:modified_time" content="2025-01-11T22:31:20+03:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><meta property="article:tag" content="Architecture"><meta property="article:tag" content="Golang"></head><body><main class="article-layout"><div class="container"><article><h1 class="post-title">Архитектура многопоточных приложений</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>12 min read</span><span class="separator">·</span><span>Nov 4, 2021</span></div></div></section><div class="post-content">
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/arch-muilti-apps.webp 640w, /v1/resize:fit:720/format:webp/arch-muilti-apps.webp 720w, /v1/resize:fit:750/format:webp/arch-muilti-apps.webp 750w, /v1/resize:fit:768/format:webp/arch-muilti-apps.webp 768w, /v1/resize:fit:828/format:webp/arch-muilti-apps.webp 828w, /v1/resize:fit:1100/format:webp/arch-muilti-apps.webp 1100w, /v1/resize:fit:1400/format:webp/arch-muilti-apps.webp 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/arch-muilti-apps.webp 640w, /v1/resize:fit:720/arch-muilti-apps.webp 720w, /v1/resize:fit:750/arch-muilti-apps.webp 750w, /v1/resize:fit:768/arch-muilti-apps.webp 768w, /v1/resize:fit:828/arch-muilti-apps.webp 828w, /v1/resize:fit:1100/arch-muilti-apps.webp 1100w, /v1/resize:fit:1400/arch-muilti-apps.webp 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="1400" height="800" loading="lazy" role="presentation" src="/v1/resize:fit:1400/arch-muilti-apps.webp">
+    </picture>
+    
+  </figure>
+  
+<p>Статья не претендует на полноту, в ней описан личный опыт разработки сетевых приложений на C, node.js и golang. В каждом языке программирования свои особенности, в некоторых языках данные паттерны уже реализованы в стандартных библиотеках, но концепция везде одна.</p>
+<p>Статья вдохновлена языком go, потому что он предоставляет удобные абстракции для работы с потоками из коробки.</p>
+<h1>Для кого это</h1>
+<p>Это статья для тех, кто не является профессиональным сетевым (бэкенд) разработчиком, но хочет написать надежный и быстрый сервис, предоставляющий API по протоколу прикладного уровня передачи данных (HTTP, WebSocket, etc. over TCP).</p>
+<h1>Паттерн WaitGroup</h1>
+<p>При создании потока, ваш код больше не исполняется последовательно</p>
+<pre><code>func thread() { while(true) print(1) } // child thread
+create_thread(thread)
+while(true) print(2) // main thread
+</code></pre>
+<pre><code>2
+1
+1
+1
+2
+2
+1
+2
+</code></pre>
+<p>и завершив основной поток система убивает (а может и не сразу) дочерние потоки</p>
+<pre><code>func work() { sleep(1m); print("child") } // child thread
+create_thread(work)
+print("main") // main thread
+exit(0)
+</code></pre>
+<pre><code>main
+</code></pre>
+<p>чтобы программа отработала корректно, вам необходимо дождаться завершения дочернего потока work. Для этого в библиотеках языка предусмотрены специальные <em>wait-функции</em> <code>wait_thread(work)</code>, но мы рассмотрим задачу поинтереснее.</p>
+<p>Как поступить если у нас есть N потоков и каждый поток может внутри себя создавать еще X потоков? Ответ реализовать или использовать паттерн <strong>wait group</strong>.</p>
+<p>Заведем <strong>атомарный</strong> счетчик и перед созданием потока будем его увеличивать на 1, а в самом потоке при его завершении уменьшать на 1</p>
+<pre><code class="hljs language-go">atomic <span class="hljs-type">int</span> wait_group = <span class="hljs-number">0</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">inc</span><span class="hljs-params">()</span></span> { wait_group = wait_group + <span class="hljs-number">1</span> }
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dec</span><span class="hljs-params">()</span></span> { wait_group = wait_group - <span class="hljs-number">1</span> }
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">work1</span><span class="hljs-params">()</span></span> {
+  sleep(<span class="hljs-number">30</span>s) 
+  <span class="hljs-built_in">print</span>(<span class="hljs-string">"work1"</span>)
+  dec()
+}
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">work2</span><span class="hljs-params">()</span></span> {
+  sleep(<span class="hljs-number">10</span>s)
+  <span class="hljs-built_in">print</span>(<span class="hljs-string">"work2"</span>)
+  dec()
+}
+
+inc()
+create_thread(work1)
+<span class="hljs-type">int</span>()
+create_thread(work2)
+
+wihle(wait_group != <span class="hljs-number">0</span>) {} <span class="hljs-comment">// wait in main thread</span>
+<span class="hljs-built_in">print</span>(<span class="hljs-string">"exit"</span>)
+</code></pre>
+<pre><code>work2
+work1
+exit
+</code></pre>
+<p>Задача выполнена, но стоит отметить один важный момент.</p>
+<p>Инкремент нужно производить перед созданием потока, поток может завершиться быстрее, чем основной тред произведет инкремент. Подобные состояния называются состояниями гонки (race condition), их стоит избегать, но подробнее о синхронизации мы поговорим дальше.</p>
+<h2>Архитектура приложения на основе WaitGroup</h2>
+<p>Давайте для простоты описания примеров в качестве основы возьмем реализацию WaitGroup из языка Go</p>
+<pre><code class="hljs language-go">wg.add() <span class="hljs-comment">// инкремент счетчика</span>
+wg.done() <span class="hljs-comment">// декремент счетчика</span>
+wg.wait() <span class="hljs-comment">// ожидание нуля в счетчике</span>
+</code></pre>
+<p>Мы уже поняли, что поток — это какая-то долгая работа, давайте выразим ее интерфейсом</p>
+<pre><code class="hljs language-go"><span class="hljs-keyword">interface</span> Worker {
+  run(): void
+}
+
+<span class="hljs-keyword">type</span> Workers = Worker[]
+</code></pre>
+<p>И теперь наша основной поток будет выглядеть так</p>
+<pre><code class="hljs language-go"><span class="hljs-comment">// main</span>
+Workers works = [<span class="hljs-built_in">new</span> Work1, <span class="hljs-built_in">new</span> Work2, <span class="hljs-built_in">new</span> Work3]
+<span class="hljs-keyword">for</span> (work of works) {
+  wg.add()
+  create_thread(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> { <span class="hljs-comment">// create new thread</span>
+    work.run()
+    wg.done()
+  })
+}
+wg.wait()
+</code></pre>
+<p>Теперь вся работа с потоками сосредоточена в одном месте, мы можем как обычно продолжить писать unit тесты на наши классы. Но у нас появилась другая задача - мы захотели останавливать все воркеры, например когда пользователь хочет завершить нашу программу самостоятельно.</p>
+<h1>Корректное освобождение ресурсов</h1>
+<p>Ни для кого не секрет что корректное освобождение ресурсов очень важно, особенно это важно для сетевых приложений которые должны работать 24/7. Рассмотрим один пример сервера.</p>
+<p>Сервер создает поток обработки на каждого клиента в котором открывает сокет. Для операционной системы unix открытый сокет это файловый дескриптор, количество открытых дескрипторов ограничено ядром операционной системы. Если мы завершим основной тред сервера, он убьет потоки, но в ядре операционной системы дескрипторы сокетов останутся открытыми (на время tcp_keepalive_time + tcp_keepalive_probes * tcp_keepalive_intvl - но это не точно 🙂 ) и вскоре мы не сможем обрабатывать новые подключения, потому что все файловые дескрипторы будут заняты. Не стоит также забывать про фрагментацию памяти и уповать на garbage collector вашего языка программирования. Небольшая утечка памяти в программе, которая работает 24/7 может иметь накопительный эффект.</p>
+<h2>Простой способ управления корректным завершением потоков</h2>
+<p>Создать в главном потоке <strong>атомарный</strong> флаг <code>done</code> и передавать его в дочерние потоки по ссылке</p>
+<pre><code class="hljs language-go"><span class="hljs-keyword">interface</span> Worker {
+  run(<span class="hljs-type">bool</span> *done): void
+}
+
+class Work implements Worker {
+  run(<span class="hljs-type">bool</span> *done) {
+    while(!done) { ... }
+  }
+}
+class WaitSignal implements Worker {
+  run(<span class="hljs-type">bool</span> *done) {
+    <span class="hljs-comment">// wait SIGINT, SIGTERM os signal, see man</span>
+    *done = <span class="hljs-literal">true</span>
+  }
+}
+
+<span class="hljs-comment">// main</span>
+atomic <span class="hljs-type">bool</span> done = <span class="hljs-literal">false</span>
+Workers works = [<span class="hljs-built_in">new</span> Work, <span class="hljs-built_in">new</span> WaitSignal]
+<span class="hljs-keyword">for</span> (work of works) {
+  wg.add()
+  create_thread(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> { <span class="hljs-comment">// create new thread</span>
+    work.run(&#x26;done)
+    wg.done()
+  })
+}
+wg.wait()
+</code></pre>
+<p><code>SIGINT</code>, <code>SIGTERM</code> - это сигналы передаваемые системой при нажатии ctrl+c и kill процесса, если мы говорим о сетевом программировании то это мир unix систем и их нужно корректно обрабатывать. Тот же docker их использует для остановки процесса.</p>
+<p>Если у вас в потоке запускается какое-то долгое вычисление передавайте этот флаг и туда</p>
+<pre><code class="hljs language-go">run(<span class="hljs-type">bool</span> *done) {
+  longFunction(done)
+}
+
+longFunction(<span class="hljs-type">bool</span> *done) {
+  while(!done) { ... } 
+}
+</code></pre>
+<p>Долгим в сетевом мире может быть, например, процесс подключения к базе данных или любой сетевой запрос, потому что сеть — не идеальная среда, и запрос может идти несколько часов/минут, вы уже завершили программу, но все еще ждете, пока в каком-то потоке идет попытка подключения к серверу. Для решения подобных проблем необходимо вводить таймауты на операции, эту тему мы затронем далее.</p>
+<h2>Сложный способ управления корректным завершением потоков</h2>
+<p>В языке Go есть очень интересный пакет под названием <a href="https://pkg.go.dev/context">Context</a> в других языках программирования я такого не встречал, но эта абстракция очень удобна в использовании.</p>
+<pre><code class="hljs language-go"><span class="hljs-keyword">type</span> Context <span class="hljs-keyword">interface</span> {
+    <span class="hljs-comment">// Deadline returns the time when work done on behalf of this context</span>
+	<span class="hljs-comment">// should be canceled. Deadline returns ok==false when no deadline is</span>
+	<span class="hljs-comment">// set. Successive calls to Deadline return the same results.</span>
+	Deadline() (deadline time.Time, ok <span class="hljs-type">bool</span>)
+	<span class="hljs-comment">// Done returns a channel that's closed when work done on behalf of this</span>
+	<span class="hljs-comment">// context should be canceled.</span>
+	Done() &#x3C;-<span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>{}
+	Value(key <span class="hljs-keyword">interface</span>{}) <span class="hljs-keyword">interface</span>{}
+}
+</code></pre>
+<p>метод Done() — что-то очень знакомое и напоминает наш флаг, это он и есть, но фишкой контекста является то, что он создается как копия родительского, но к родительскому добавляется ссылка на дочерние контексты, и если завершается родитель, он сначала завершает все дочерние контексты, это позволяет намного гибче контролировать потоки.<br>
+В языке Go принято, что контекст передается через DI первым аргументом функции, функция, которая принимает контекст, обязана проверять его статус и завершаться, если контекст закрыт.</p>
+<pre><code class="hljs language-go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">work</span><span class="hljs-params">(ctx context.Context)</span></span> {
+  <span class="hljs-keyword">for</span> { <span class="hljs-comment">// endless loop</span>
+	<span class="hljs-keyword">select</span> {
+		<span class="hljs-keyword">case</span> &#x3C;-ctx.Done():
+			<span class="hljs-keyword">return</span>
+		}
+	}
+}
+</code></pre>
+<p>Рассмотри метод WithCancel</p>
+<pre><code>ctx, cancel := context.WithCancel(context.Background())
+</code></pre>
+<p>context.Background() возвращает самый первый и чистый контекст, этот метод должен вызываться ТОЛЬКО один раз в основном main потоке программы, это означает что при вызове функции cancel() все дочерние контексты закроются = закроются все потоки и все их дочерние потоки.</p>
+<p>теперь поглядим зачем нужно это наследование</p>
+<pre><code class="hljs language-go">mainCtx, cancel := context.WithCancel(context.Background())
+<span class="hljs-keyword">defer</span> cancel() <span class="hljs-comment">// вызовется при завершении работы основного потока</span>
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">work1</span><span class="hljs-params">(parentCtx context.Context)</span></span> {
+  work1Ctx, cancelWork1Ctx := context.WithCancel(parentCtx)
+  <span class="hljs-keyword">defer</span> cancelWork1Ctx() <span class="hljs-comment">// defer выполняется при завершении функции work1</span>
+  <span class="hljs-keyword">go</span> work2(work1Ctx) <span class="hljs-comment">// создали поток с work2</span>
+  <span class="hljs-keyword">for</span> { <span class="hljs-comment">// делаем работу</span>
+    <span class="hljs-keyword">select</span> {
+		<span class="hljs-keyword">case</span> &#x3C;-parentCtx.Done(): <span class="hljs-comment">// проверяем не закрыт ли родительский контекст</span>
+			<span class="hljs-keyword">return</span>
+		}
+	}
+  }
+  <span class="hljs-comment">// завершаем корректно работу</span>
+  <span class="hljs-comment">// вызываются defer</span>
+}
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">work2</span><span class="hljs-params">(parentCtx context.Context)</span></span> {
+  ... проверяем не закрыт ли родительский контекст
+}
+
+<span class="hljs-keyword">go</span> work1(mainCtx) <span class="hljs-comment">// создаем поток работы</span>
+
+<span class="hljs-comment">// ждем например сигнала sigterm, sigint </span>
+done := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> os.Signal, <span class="hljs-number">1</span>)
+signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+ 
+<span class="hljs-comment">// это блокирующая операция поэтому основной поток будет "висеть"</span>
+&#x3C;-done
+<span class="hljs-comment">// вызываются defer</span>
+</code></pre>
+<p>суть такая, если мы завершим work1Ctx - закроются лишь те потоки, которые слушают этот контекст, при этом кто слушает mainCtx продолжат работать, но если закрыть mainCtx - он завершит дочерний work1Ctx тем самым по цепочке корректно завершаться все потоки.</p>
+<p>Вторая немаловажная функция context.WithTimeout - она создает контекст который автоматически закроется через заданный интервал, это позволяет нам контролировать “зависшие“ соединения, “слишком“ долгие функции, закрывать этот контекст нужно ПОСЛЕ того как совершиться долгая операция, потому что она может завершиться, раньше чем сработает таймер.</p>
+<pre><code>func slowOperationWithTimeout(ctx context.Context) (Result, error) {
+	ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
+	defer cancel()  // releases resources if slowOperation completes before timeout elapses
+	return slowOperation(ctx)
+}
+</code></pre>
+<p>Как вы понимаете slowOperation внутри так же проверяет ctx.Done() и завершиться если закроется родительский контекст, не дожидаясь срабатывания таймера.</p>
+<p>Возможно в вашем языке есть подобные решения, а может вы захотите переписать context на свой язык, благо код пакетов go это open source <a href="https://github.com/golang/go/blob/master/src/context/context.go">https://github.com/golang/go/blob/master/src/context/context.go</a></p>
+<h1>Немного о мьютексах и паттерне state машины</h1>
+<p>При работе с асинхронным/многопоточным кодом рано или поздно вы столкнетесь с состоянием гонки (race condition)</p>
+<pre><code class="hljs language-go"><span class="hljs-type">int</span> x = <span class="hljs-number">0</span>
+thread_work1() {
+  x = x + <span class="hljs-number">5</span>
+}
+thread_work2() {
+  x = x + <span class="hljs-number">3</span>
+}
+
+<span class="hljs-built_in">print</span>(x) <span class="hljs-comment">// ?</span>
+</code></pre>
+<p>потоки не обязательно будут работать по очереди, очередь их выполнения определяет планировщик операционной системы или самого языка (например Go). В данном примере x может быть больше исходного на 3, 5 или 8</p>
+<p>Выше я приводил в пример атомарный тип данных, но подобная функциональность поддерживается далеко не во всех языках программирования, атомарные операции выполняются на уровне процессора, а это уже слишком низкий уровень. Поэтому для синхронизации потоков в операционных системах придумали мьютексы, семафоры и критические секции.</p>
+<blockquote>
+<p>Задачей мьютекса является защита объекта от доступа к нему других потоков, отличных от того, который завладел мьютексом. В каждый конкретный момент только один поток может владеть объектом, защищённым мьютексом. Если другому потоку будет нужен доступ к данным, защищённым мьютексом, то этот поток <a href="https://ru.wikipedia.org/wiki/%D0%91%D0%BB%D0%BE%D0%BA%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B0_(%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5)">блокируется</a> до тех пор, пока мьютекс не будет освобождён. Мьютекс защищает данные от повреждения в результате асинхронных изменений (<a href="https://ru.wikipedia.org/wiki/%D0%A1%D0%BE%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D0%B5_%D0%B3%D0%BE%D0%BD%D0%BA%D0%B8">состояние гонки</a>), однако при неправильном использовании могут порождаться другие проблемы, например, <a href="https://ru.wikipedia.org/wiki/%D0%92%D0%B7%D0%B0%D0%B8%D0%BC%D0%BD%D0%B0%D1%8F_%D0%B1%D0%BB%D0%BE%D0%BA%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B0">взаимная блокировка</a> или двойной захват.</p>
+</blockquote>
+<p>Для простоты понимания рассмотрим пример на языке Go, он имеет пакет абстракции sync.Mutex который абстрагирует нас от операционный системы под которую компилируется наша программа. Он имеет два метода Lock и Unlock</p>
+<pre><code class="hljs language-go"><span class="hljs-comment">// SafeCounter is safe to use concurrently.</span>
+<span class="hljs-keyword">type</span> SafeCounter <span class="hljs-keyword">struct</span> {
+	mu sync.Mutex
+	v  <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">int</span>
+}
+
+<span class="hljs-comment">// Inc increments the counter for the given key.</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *SafeCounter)</span></span> Inc(key <span class="hljs-type">string</span>) {
+	c.mu.Lock()
+	<span class="hljs-comment">// Lock so only one goroutine at a time can access the map c.v.</span>
+	c.v[key]++
+	c.mu.Unlock()
+}
+
+<span class="hljs-comment">// Value returns the current value of the counter for the given key.</span>
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *SafeCounter)</span></span> Value(key <span class="hljs-type">string</span>) <span class="hljs-type">int</span> {
+	c.mu.Lock()
+	<span class="hljs-comment">// Lock so only one goroutine at a time can access the map c.v.</span>
+	<span class="hljs-keyword">defer</span> c.mu.Unlock()
+	<span class="hljs-keyword">return</span> c.v[key]
+}
+</code></pre>
+<p>В такой реализации если мы в нескольких потоках вызываем c.Inc(“key“), значение будет увеличиваться на 1, потому что после вызова c.mu.Lock() - только один поток сможет работать со структурой, другие потоки “зависнут“ в ожидании, тем самым обеспечивая синхронность выполнения операции инкремента.</p>
+<p>Важно понимать что нельзя блокировать структуру на длительное время - тем самым вы блокируете работу всей программы в целом и не получите выгоды от многопоточности.</p>
+<p>Если же вы забудете разблокировать мьютекс, ваша программа зависнет, потому что остальные потоки будут “ждать“ его разблокировки, так что будьте внимательны 🙂</p>
+<h2>State machine (конечный автомат)</h2>
+<p>Все наши с вами компьютеры это конечные автоматы, и как вы могли заметить в примерах потоков у нас крутятся какие-то “бесконечные” циклы.</p>
+<p>Основная идея паттерна в том, что программа может находиться в одном из нескольких состояний, которые всё время сменяют друг друга. Набор этих состояний, а также переходов между ними, предопределён и <em>конечен</em>. Находясь в разных состояниях, программа может по-разному реагировать на одни и те же события, которые происходят с ней.</p>
+<p>Для примера возьмем наш encoder, он умеет читать конфиг и инициализироваться, кодировать видео и корректно завершать свою работу. Отобразим эти состояния</p>
+<pre><code class="hljs language-go">enum State {
+  INIT
+  DESTROY
+}
+</code></pre>
+<p>Допустим управление осуществляется по HTTP, создадим worker реализующий сервер</p>
+<pre><code class="hljs language-go">
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(a ApiServer)</span></span> Start(ctx context.Context, sm: StateMachine) <span class="hljs-type">error</span> {
+  s := createServer()
+  registerRoutes(sm)
+  
+  <span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> {
+		&#x3C;-ctx.Done()
+		<span class="hljs-comment">// timer for close all connections</span>
+		timeoutCtx, shutdown := context.WithTimeout(ctx, <span class="hljs-number">5</span>*time.Second)
+		_ = s.Shutdown(timeoutCtx)
+		shutdown()
+	}()
+	
+	<span class="hljs-keyword">if</span> err := s.Serve(listener); err != http.ErrServerClosed {
+		<span class="hljs-keyword">return</span> err
+	}
+	
+	<span class="hljs-comment">//  close database connections here</span>
+
+	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+}
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">registerRoutes</span><span class="hljs-params">(sm: StateMachine)</span></span> {
+ <span class="hljs-comment">// упростим код</span>
+ handleFunc(<span class="hljs-string">"/api/v1/init"</span>, () { <span class="hljs-keyword">return</span> sm.Set(INIT) })
+ handleFunc(<span class="hljs-string">"/api/v1/state"</span>, () { <span class="hljs-keyword">return</span> sm.State() })
+ handleFunc(<span class="hljs-string">"/api/v1/destroy"</span>, () { <span class="hljs-keyword">return</span> sm.Set(DESTROY) })	
+}
+</code></pre>
+<p>Дальше сделаем основной конечный автомат</p>
+<pre><code class="hljs language-go"><span class="hljs-comment">// wokers/encoder.go</span>
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Start</span><span class="hljs-params">(ctx context.Context, sm: StateMachine)</span></span> <span class="hljs-type">error</span> {
+  <span class="hljs-keyword">var</span> destroy context.CancelFunc
+  
+  <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> {
+    <span class="hljs-keyword">if</span> destroy != <span class="hljs-literal">nil</span> {
+      destroy()
+    } 
+  }()
+  
+  <span class="hljs-keyword">for</span> { <span class="hljs-comment">// бесконечный циксл</span>
+    <span class="hljs-keyword">select</span> {
+        <span class="hljs-keyword">case</span> state &#x3C;-sm.State():
+          <span class="hljs-keyword">switch</span> state {
+            <span class="hljs-keyword">case</span> INIT:
+              <span class="hljs-keyword">var</span> encoderCtx context.Context
+              encoderCtx, destroy = context.WithCancel(ctx)
+              <span class="hljs-keyword">go</span> init(encoderCtx)
+          <span class="hljs-keyword">case</span> DESTROY:
+              destroy()
+          }
+        <span class="hljs-keyword">case</span> &#x3C;-ctx.Done(): <span class="hljs-comment">// проверяем родительский контекст может завершился?</span>
+          <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+    }
+  }
+  
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>
+}
+</code></pre>
+<p>Теперь соберем нашу основную программу, которая является точкой входа</p>
+<pre><code class="hljs language-go"><span class="hljs-comment">// main</span>
+state := sm.New()
+ctx, cancel := context.WithCancel(context.Background())
+<span class="hljs-keyword">defer</span> cancel()
+
+<span class="hljs-comment">// запустим поток ожидания системных сигналов</span>
+<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> {
+  quit := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> os.Signal, <span class="hljs-number">1</span>)
+  signal.Notify(quit, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+  <span class="hljs-keyword">select</span> {
+	<span class="hljs-keyword">case</span> &#x3C;-ctx.Done():
+		<span class="hljs-keyword">return</span>
+	<span class="hljs-keyword">case</span> &#x3C;-quit:
+		cancel()
+	}
+}
+
+<span class="hljs-keyword">var</span> wg sync.WaitGroup
+Workers works = [api.New(), encoder.New()]
+wg.Add(<span class="hljs-built_in">len</span>(works))
+<span class="hljs-keyword">for</span> _, work := <span class="hljs-keyword">range</span> works {
+  <span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> { <span class="hljs-comment">// create new thread</span>
+    work.Start(ctx, state)
+    wg.Done()
+  }()
+}
+wg.Wait()
+</code></pre>
+<p>Экземпляр state у нас один - он создается в главном потоке и передается дочерним потокам через указатель при создании, один из них меняет состояния, другой реагирует на их изменение.</p>
+<p>По факту у нас получилось 6 потоков управляемые контекстами</p>
+<ol>
+<li>
+<p>основной поток процесса ожидающий закрытия всех запущенных потоков</p>
+<ol>
+<li>
+<p>поток ожидания сигнала завершения программы</p>
+</li>
+<li>
+<p>поток запуска обработки запросов по http</p>
+<ol>
+<li>поток ожидающий закрытия родительского потока для корректного выключения http сервера</li>
+</ol>
+</li>
+<li>
+<p>поток обработки стейт машины</p>
+<ol>
+<li>поток енкодера управляемый стейт машиной</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h1>Список литературы</h1>
+<h2>Процессы, потоки, синхронизация</h2>
+<ul>
+<li>Таненбаум Э.С. "Современные операционные системы"</li>
+<li>Рихтер Джеффри “Windows для профессионалов. Создание эффективных Win32-пpилoжeний с учетом специфики 64-разрядной версии Windows”</li>
+</ul>
+<h2>Паттерны</h2>
+<p><a href="https://refactoring.guru/ru/design-patterns/state">https://refactoring.guru/ru/design-patterns/state</a>
+<a href="https://go.dev/blog/pipelines">https://go.dev/blog/pipelines</a></p>
+<h2>WaitGroup</h2>
+<p><a href="https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitformultipleobjects?redirectedfrom=MSDN">WaitForMultipleObjects function (synchapi.h)</a><br>
+<a href="https://stackoverflow.com/questions/2719580/waitforsingleobject-and-waitformultipleobjects-equivalent-in-linux">WaitForSingleObject and WaitForMultipleObjects equivalent in Linux?</a><br>
+<a href="https://www.boost.org/doc/libs/1_34_0/doc/html/boost/thread_group.html">Boost class thread_group</a></p></div></article><div class="post-tags"><div class="topics-list"><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/architecture"><div class="topic-item-text">Architecture</div></a></div><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/golang"><div class="topic-item-text">Golang</div></a></div></div></div></div></main><footer class="article-footer"><div class="container"><div class="content"><div class="space"></div><section class="author-section"><a class="author-section-left" rel="noopener follow" href="/"><div class="avatar-box"><img class="avatar mobile-hide" alt="Igor Riakhovskii" src="/v1/resize:fill:96:96/public/avatar.jpg" width="48" height="48" loading="lazy"><div class="avatar-shadow mobile-hide"></div><img class="avatar-big mobile-only" alt="Igor Riakhovskii" src="/v1/resize:fill:128:128/public/avatar.jpg" width="64" height="64" loading="lazy"><div class="avatar-big-shadow mobile-only"></div></div></a><div><a class="author-name" rel="noopener follow" href="/">Written by Igor Riakhovskii</a><div class="author-summary">In commercial development since 2005. At the moment, I am engaged in product development of cloud systems in the role of Technical Lead</div></div></section></div></div></footer></body></html>
