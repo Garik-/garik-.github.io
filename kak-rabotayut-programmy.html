@@ -1,0 +1,391 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="/stylesheets/style.css"><link rel="icon" href="/images/favicon.ico"><link rel="apple-touch-icon" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><script src="/javascripts/counter.js"></script><title>Как работают программы | by Igor Riakhovskii</title><meta name="description" content="Стоит упомянуть классификацию архитектуры компьютеров"><meta property="og:title" content="Как работают программы"><meta property="og:description" content="Стоит упомянуть классификацию архитектуры компьютеров"><meta property="og:type" content="article"><meta property="article:published_time" content="2025-01-12T15:37:17+03:00"><meta property="article:modified_time" content="2025-01-12T16:43:16+03:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><meta property="article:tag" content="Talk"></head><body><main class="article-layout"><div class="container"><article><h1 class="post-title">Как работают программы</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>12 min read</span><span class="separator">·</span><span>Jan 12</span></div></div></section><div class="post-content"><p>Стоит упомянуть классификацию архитектуры компьютеров</p>
+<h2>По типу применяемого процессора</h2>
+<ul>
+<li>
+<p><a href="https://ru.wikipedia.org/wiki/CISC">CISC</a> (англ. complex instruction set computing) - архитектура с полным набором команд. Такие процессоры выполняют все команды, простые и сложные, за большое количество тактов. Команд в таких процессорах много, и бывает, что компиляторы верхнего уровня очень редко используют все команды.</p>
+</li>
+<li>
+<p><a href="https://ru.wikipedia.org/wiki/RISC">RISC</a> (англ. reduced instruction set computing) - архитектура с сокращенным набором команд. Такие процессоры работают быстрее, чем <a href="https://ru.wikipedia.org/wiki/CISC">CISC</a> архитектура, за счет упрощения архитектуры и сокращения количества команд, но для выполнения сложной команды, она составляется из набора простых, что увеличивает время выполнения команды (за большее количество тактов).</p>
+</li>
+<li>
+<p><a href="https://ru.wikipedia.org/wiki/MISC">MISC</a> (англ. minimal instruction set computing) - архитектура с минимальным набором команд. Такие процессоры имеют минимальное количество команд, все команды простые и требуют небольшого количества тактов на выполнение, но если выполняются сложные вычисления, например с числами с плавающей запятой, то такие команды выполняются за большое количество тактов, превышающее <a href="https://ru.wikipedia.org/wiki/CISC">CISC</a> и <a href="https://ru.wikipedia.org/wiki/RISC">RISC</a> архитектуры.</p>
+</li>
+</ul>
+<h2>По принципу разделения памяти</h2>
+<ul>
+<li><a href="https://ru.wikipedia.org/wiki/%D0%93%D0%B0%D1%80%D0%B2%D0%B0%D1%80%D0%B4%D1%81%D0%BA%D0%B0%D1%8F_%D0%B0%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0">Гарвардская архитектура</a> - характерной чертой является разделение памяти программ и памяти данных</li>
+<li><a href="https://ru.wikipedia.org/wiki/%D0%90%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0_%D1%84%D0%BE%D0%BD_%D0%9D%D0%B5%D0%B9%D0%BC%D0%B0%D0%BD%D0%B0">Фон Неймановская архитектура</a> - характерной чертой является совместное хранение программ и данных</li>
+</ul>
+<p>Системы команд и микропроцессорных архитектур:</p>
+<p> x86, MIPS, SPARC, PowerPC </p>
+<p>В дальнейшем мы рассмотрим более популярную архитектуру x86 это по типу применяемого процессора это CISC а по типу разделения памяти гарвардская архитектура</p>
+<h1>Из чего вообще состоит процессор, цифровые логические узлы</h1>
+<p>Вообще этих узлов много мы создадим и рассмотрим простейшую архитектуру основанной на гарвардской архитектуре разделения памяти</p>
+<h2>Алу, матрицы памяти (ROM, RAM), регистры и генератор тактовых сигналов</h2>
+<p>Арифметико-логическое устройство (АЛУ, Arithmetic/Logical Unit (ALU) объединяет различные арифметические и логические операции в одном узле. Например, типичное АЛУ может выполнять сложение, вычитание, сравнение величин, операции «И» и «ИЛИ». АЛУ входит в ядро большинства компьютерных систем.</p>
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/alu.png 640w, /v1/resize:fit:720/format:webp/alu.png 720w, /v1/resize:fit:750/format:webp/alu.png 750w, /v1/resize:fit:768/format:webp/alu.png 768w, /v1/resize:fit:828/format:webp/alu.png 828w, /v1/resize:fit:1100/format:webp/alu.png 1100w, /v1/resize:fit:1400/format:webp/alu.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/alu.png 640w, /v1/resize:fit:720/alu.png 720w, /v1/resize:fit:750/alu.png 750w, /v1/resize:fit:768/alu.png 768w, /v1/resize:fit:828/alu.png 828w, /v1/resize:fit:1100/alu.png 1100w, /v1/resize:fit:1400/alu.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="822" height="764" loading="lazy" role="presentation" src="/v1/resize:fit:1400/alu.png">
+    </picture>
+    
+  </figure>
+  
+<p>В АЛУ поступает управляющий сигнал F, который определяет, какую функцию нужно выполнить. </p>
+<h2>Регистры</h2>
+<p>Подавляющее большинство современных коммерческих систем построено на регистрах, использующих срабатывающие по переднему фронту тактового импульса D-триггеры.</p>
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/d-trigger.png 640w, /v1/resize:fit:720/format:webp/d-trigger.png 720w, /v1/resize:fit:750/format:webp/d-trigger.png 750w, /v1/resize:fit:768/format:webp/d-trigger.png 768w, /v1/resize:fit:828/format:webp/d-trigger.png 828w, /v1/resize:fit:1100/format:webp/d-trigger.png 1100w, /v1/resize:fit:1400/format:webp/d-trigger.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/d-trigger.png 640w, /v1/resize:fit:720/d-trigger.png 720w, /v1/resize:fit:750/d-trigger.png 750w, /v1/resize:fit:768/d-trigger.png 768w, /v1/resize:fit:828/d-trigger.png 828w, /v1/resize:fit:1100/d-trigger.png 1100w, /v1/resize:fit:1400/d-trigger.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="1180" height="856" loading="lazy" role="presentation" src="/v1/resize:fit:1400/d-trigger.png">
+    </picture>
+    
+  </figure>
+  
+<h2>Матрицы памяти</h2>
+<p>Матрица памяти грубо говоря это сетка объединенных между собой регистров</p>
+<p>Разделяют:</p>
+<ul>
+<li>Динамические ОЗУ (DRAM)</li>
+<li>Статические ОЗУ (SRAM)</li>
+<li>Постоянное запоминающее устройство (ROM)</li>
+</ul>
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250112155104.png 640w, /v1/resize:fit:720/format:webp/20250112155104.png 720w, /v1/resize:fit:750/format:webp/20250112155104.png 750w, /v1/resize:fit:768/format:webp/20250112155104.png 768w, /v1/resize:fit:828/format:webp/20250112155104.png 828w, /v1/resize:fit:1100/format:webp/20250112155104.png 1100w, /v1/resize:fit:1400/format:webp/20250112155104.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250112155104.png 640w, /v1/resize:fit:720/20250112155104.png 720w, /v1/resize:fit:750/20250112155104.png 750w, /v1/resize:fit:768/20250112155104.png 768w, /v1/resize:fit:828/20250112155104.png 828w, /v1/resize:fit:1100/20250112155104.png 1100w, /v1/resize:fit:1400/20250112155104.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="1400" height="865" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250112155104.png">
+    </picture>
+    
+  </figure>
+  
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250112155204.png 640w, /v1/resize:fit:720/format:webp/20250112155204.png 720w, /v1/resize:fit:750/format:webp/20250112155204.png 750w, /v1/resize:fit:768/format:webp/20250112155204.png 768w, /v1/resize:fit:828/format:webp/20250112155204.png 828w, /v1/resize:fit:1100/format:webp/20250112155204.png 1100w, /v1/resize:fit:1400/format:webp/20250112155204.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250112155204.png 640w, /v1/resize:fit:720/20250112155204.png 720w, /v1/resize:fit:750/20250112155204.png 750w, /v1/resize:fit:768/20250112155204.png 768w, /v1/resize:fit:828/20250112155204.png 828w, /v1/resize:fit:1100/20250112155204.png 1100w, /v1/resize:fit:1400/20250112155204.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="1400" height="816" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250112155204.png">
+    </picture>
+    
+  </figure>
+  
+<p>Запоминающие устройства классифицируются по способу хранения битов.</p>
+<p>Запоминающие устройства делятся на два больших класса оперативные запоминающие устройства (ОЗУ) (RAM, память с произвольным доступом) и постоянные запоминающие устройства (ПЗУ) (ROM, память только для чтения). ОЗУ является энергозависимым, то есть, при отключении питания информация, которая хранилась в ОЗУ, утрачивается. ПЗУ энергонезависимо, оно сохраняет свои данные даже при отсутствии питания. </p>
+<p>В настоящее время ситуация не совсем такая. В ROM  тоже можно записывать - называется это “прошивка”</p>
+<p>Главное отличие, на которое следует обратить внимание, состоит в том, что ОЗУ энергозависимо, а ПЗУ энергонезависимо.</p>
+<h1>Язык ассемблера, архитектура 8086 -> x86</h1>
+<p>Язык ассемблера – это удобное для восприятия человеком представление родного языка компьютера. Каждая инструкция языка ассемблера задаёт операцию, которую необходимо выполнить, а также операнды, которые будут использованы во время выполнения. </p>
+<p><a href="https://ru.wikibooks.org/wiki/%D0%90%D1%81%D1%81%D0%B5%D0%BC%D0%B1%D0%BB%D0%B5%D1%80_%D0%B2_Linux_%D0%B4%D0%BB%D1%8F_%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%81%D1%82%D0%BE%D0%B2_C">Ассемблер в Linux для программистов C</a></p>
+<p><a href="https://ru.wikipedia.org/wiki/%D0%A0%D0%B5%D0%B3%D0%B8%D1%81%D1%82%D1%80_%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%81%D0%BE%D1%80%D0%B0">Регистр</a> — это небольшой объем очень быстрой памяти, размещённой на процессоре. Он предназначен для хранения результатов промежуточных вычислений, а также некоторой информации для управления работой процессора. Так как регистры размещены непосредственно на процессоре, доступ к данным, хранящимся в них, намного быстрее доступа к данным в <a href="https://ru.wikipedia.org/wiki/%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D0%B0%D1%8F_%D0%BF%D0%B0%D0%BC%D1%8F%D1%82%D1%8C">оперативной памяти</a>.</p>
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250112155830.png 640w, /v1/resize:fit:720/format:webp/20250112155830.png 720w, /v1/resize:fit:750/format:webp/20250112155830.png 750w, /v1/resize:fit:768/format:webp/20250112155830.png 768w, /v1/resize:fit:828/format:webp/20250112155830.png 828w, /v1/resize:fit:1100/format:webp/20250112155830.png 1100w, /v1/resize:fit:1400/format:webp/20250112155830.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250112155830.png 640w, /v1/resize:fit:720/20250112155830.png 720w, /v1/resize:fit:750/20250112155830.png 750w, /v1/resize:fit:768/20250112155830.png 768w, /v1/resize:fit:828/20250112155830.png 828w, /v1/resize:fit:1100/20250112155830.png 1100w, /v1/resize:fit:1400/20250112155830.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="495" height="400" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250112155830.png">
+    </picture>
+    
+  </figure>
+  
+<p>Регистры 16 битного процессора intel 8086 это древний потомок архитектуры x86</p>
+<p>Регистры общего назначения (РОН, англ. General Purpose Registers, сокращённо GPR). Размер — 32 бита.</p>
+<ul>
+<li><code>%eax</code>: Accumulator register — аккумулятор, применяется для хранения результатов промежуточных вычислений.</li>
+<li><code>%ebx</code>: Base register — базовый регистр, применяется для хранения адреса (указателя) на некоторый объект в памяти.</li>
+<li><code>%ecx</code>: Counter register — счетчик, его неявно используют некоторые команды для организации циклов (см. loop).</li>
+<li><code>%edx</code>: Data register — регистр данных, используется для хранения результатов промежуточных вычислений и ввода-вывода.</li>
+<li><code>%esp</code>: Stack pointer register — указатель стека. Содержит адрес вершины стека.</li>
+<li><code>%ebp</code>: Base pointer register — указатель базы кадра стека (англ. stack frame). Предназначен для организации произвольного доступа к данным внутри стека.</li>
+<li><code>%esi</code>: Source index register — индекс источника, в цепочечных операциях содержит указатель на текущий элемент-источник.</li>
+<li><code>%edi</code>: Destination index register — индекс приёмника, в цепочечных операциях содержит указатель на текущий элемент-приёмник.</li>
+</ul>
+<p> можно обратиться как <code>%ax</code>. А <code>%ax</code>, в свою очередь, содержит две однобайтовых половинки, которые могут использоваться как самостоятельные регистры: старший <code>%ah</code> и младший <code>%al</code>. Аналогично можно обращаться к <code>%ebx/%bx/%bh/%bl</code>, <code>%ecx/%cx/%ch/%cl</code>, <code>%edx/%dx/%dh/%dl</code>, <code>%esi/%si</code>, <code>%edi/%di</code>.</p>
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250112160211.png 640w, /v1/resize:fit:720/format:webp/20250112160211.png 720w, /v1/resize:fit:750/format:webp/20250112160211.png 750w, /v1/resize:fit:768/format:webp/20250112160211.png 768w, /v1/resize:fit:828/format:webp/20250112160211.png 828w, /v1/resize:fit:1100/format:webp/20250112160211.png 1100w, /v1/resize:fit:1400/format:webp/20250112160211.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250112160211.png 640w, /v1/resize:fit:720/20250112160211.png 720w, /v1/resize:fit:750/20250112160211.png 750w, /v1/resize:fit:768/20250112160211.png 768w, /v1/resize:fit:828/20250112160211.png 828w, /v1/resize:fit:1100/20250112160211.png 1100w, /v1/resize:fit:1400/20250112160211.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="461" height="142" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250112160211.png">
+    </picture>
+    
+  </figure>
+  
+<p>Не следует бояться такого жёсткого закрепления назначения использования регистров. Большая их часть может использоваться для хранения совершенно произвольных данных. Единственный случай, когда нужно учитывать, в какой регистр помещать данные — использование неявно обращающихся к регистрам команд. Такое поведение всегда чётко документировано.</p>
+<p>Сегментные регистры:</p>
+<ul>
+<li><code>%cs</code>: Code segment — описывает текущий сегмент кода.</li>
+<li><code>%ds</code>: Data segment — описывает текущий сегмент данных.</li>
+<li><code>%ss</code>: Stack segment — описывает текущий сегмент стека.</li>
+<li><code>%es</code>: Extra segment — дополнительный сегмент, используется неявно в строковых командах как сегмент-получатель.</li>
+<li><code>%fs</code>: F segment — дополнительный сегментный регистр без специального назначения.</li>
+<li><code>%gs</code>: G segment — дополнительный сегментный регистр без специального назначения.</li>
+</ul>
+<h2>Стек</h2>
+<p>Мы полагаем, что читатель имеет опыт программирования на Си и знаком со структурами данных типа <a href="https://ru.wikipedia.org/wiki/%D0%A1%D1%82%D0%B5%D0%BA">стек</a>. В микропроцессоре стек работает похожим образом: это область памяти, у которой определена вершина (на неё указывает <code>%esp</code>). Поместить новый элемент можно только на вершину стека, при этом новый элемент становится вершиной. Достать из стека можно только верхний элемент, при этом вершиной становится следующий элемент. У вас наверняка была в детстве игрушка-пирамидка, где нужно было разноцветные кольца надевать на общий стержень. Так вот, эта пирамидка — отличный пример стека. Также можно провести аналогию с составленными стопкой тарелками. На разных архитектурах стек может "расти" как в сторону младших адресов (принцип описан ниже, подходит для x86), так и старших.</p>
+<pre><code>Содержимое стека  Адреса в памяти
+.                .
+.                .
+.                .
++----------------+ 0x0000F040
+|                |
++----------------+ 0x0000F044 &#x3C;-- вершина стека (на неё указывает %esp)
+|     данные     |
++----------------+ 0x0000F048
+|     данные     |
++----------------+ 0x0000F04C
+.                .
+.                .
+.                .
++----------------+ 0x0000FFF8
+|     данные     |
++----------------+ 0x0000FFFC
+|     данные     |
++----------------+ 0x00010000 &#x3C;-- дно стека
+</code></pre>
+<p>Стек растёт в сторону младших адресов. Это значит, что последний записанный в стек элемент будет расположен по адресу младше остальных элементов стека.</p>
+<p>При помещении нового элемента в стек происходит следующее (принцип работы команды push):</p>
+<ul>
+<li>значение <code>%esp</code> уменьшается на размер элемента в байтах (4 или 2);</li>
+<li>новый элемент записывается по адресу, на который указывает <code>%esp</code>.</li>
+</ul>
+<pre><code>Содержимое стека  Адреса в памяти
+.                .
+.                .
+.                .
++----------------+ 0x0000F040 &#x3C;-- новая вершина стека (%esp)
+|  новый элемент |
++----------------+ 0x0000F044 &#x3C;-- старая вершина стека
+|     данные     |
++----------------+ 0x0000F048
+.                .
+.                .
+.                .
++----------------+ 0x0000FFFC
+|     данные     |
++----------------+ 0x00010000 &#x3C;-- дно стека
+</code></pre>
+<p>При выталкивании элемента из стека эти действия совершаются в обратном порядке(принцип работы команды pop):</p>
+<ul>
+<li>содержимое памяти по адресу, который записан в <code>%esp</code>, записывается в регистр;</li>
+<li>а значение адреса в <code>%esp</code> увеличивается на размер элемента в байтах (4 или 2).</li>
+</ul>
+<pre><code>Содержимое стека  Адреса в памяти
+.                 .
+.                 .
+.                 .
++-----------------+ 0x0000F040 &#x3C;-- старая вершина стека
+| верхний элемент | -------------> записывается в регистр
++-----------------+ 0x0000F044 &#x3C;-- новая вершина стека (%esp)
+|      данные     |
++-----------------+ 0x0000F048
+.                 .
+.                 .
+.                 .
++-----------------+ 0x0000FFFC
+|      данные     |
++-----------------+ 0x00010000 &#x3C;-- дно стека
+</code></pre>
+<h2>Циклы команда loop</h2>
+<p>Для организации цикла предназначена команда <a href="http://asmworld.ru/spravochnik-komand/loop">LOOP</a>. У этой команды один операнд — имя метки, на которую осуществляется переход. В качестве счётчика цикла используется регистр CX. Команда <a href="http://asmworld.ru/spravochnik-komand/loop">LOOP</a>выполняет декремент CX, а затем проверяет его значение. Если содержимое CX не равно нулю, то осуществляется переход на метку, иначе управление переходит к следующей после <a href="http://asmworld.ru/spravochnik-komand/loop">LOOP</a> команде.</p>
+<h2>Условные и безусловные  переходы</h2>
+<p>Безусловный переход — это переход, который выполняется всегда. Безусловный переход осуществляется с помощью команды <a href="http://asmworld.ru/spravochnik-komand/jmp">JMP</a>. У этой команды один операнд, который может быть непосредственным адресом (меткой), регистром или ячейкой памяти, содержащей адрес. Существуют также «дальние» переходы — между сегментами, однако здесь мы их рассматривать не будем.</p>
+<p>Условный переход осуществляется, если выполняется определённое условие, заданное флагами процессора (кроме одной команды, которая проверяет CX на равенство нулю). Как вы помните, состояние флагов изменяется после выполнения арифметических, логических и некоторых других команд. Если условие не выполняется, то управление переходит к следующей команде.</p>
+<p>Существует много команд для различных условных переходов. Также для некоторых команд есть синонимы (например, <a href="http://asmworld.ru/spravochnik-komand/jcond">JZ</a> и <a href="http://asmworld.ru/spravochnik-komand/jcond">JE</a> — это одно и то же). Для наглядности все команды условных переходов приведены в таблице:</p>
+<table>
+<thead>
+<tr>
+<th>Команда</th>
+<th>Переход, если</th>
+<th>Условие перехода</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JZ/JE</td>
+<td>нуль или равно</td>
+<td>ZF=1</td>
+</tr>
+<tr>
+<td>JNZ/JNE</td>
+<td>не нуль или не равно</td>
+<td>ZF=0</td>
+</tr>
+<tr>
+<td>JC/JNAE/JB</td>
+<td>есть переполнение/не выше и не равно/ниже</td>
+<td>CF=1</td>
+</tr>
+<tr>
+<td>JNC/JAE/JNB</td>
+<td>нет переполнения/выше или равно/не ниже</td>
+<td>CF=0</td>
+</tr>
+<tr>
+<td>JP</td>
+<td>число единичных бит чётное</td>
+<td>PF=1</td>
+</tr>
+<tr>
+<td>JNP</td>
+<td>число единичных бит нечётное</td>
+<td>PF=0</td>
+</tr>
+<tr>
+<td>JS</td>
+<td>знак равен 1</td>
+<td>SF=1</td>
+</tr>
+<tr>
+<td>JNS</td>
+<td>знак равен 0</td>
+<td>SF=0</td>
+</tr>
+<tr>
+<td>JO</td>
+<td>есть переполнение</td>
+<td>OF=1</td>
+</tr>
+<tr>
+<td>JNO</td>
+<td>нет переполнения</td>
+<td>OF=0</td>
+</tr>
+<tr>
+<td>JA/JNBE</td>
+<td>выше/не ниже и не равно</td>
+<td>CF=0 и ZF=0</td>
+</tr>
+<tr>
+<td>JNA/JBE</td>
+<td>не выше/ниже или равно</td>
+<td>CF=1 или ZF=1</td>
+</tr>
+<tr>
+<td>JG/JNLE</td>
+<td>больше/не меньше и не равно</td>
+<td>ZF=0 и SF=OF</td>
+</tr>
+<tr>
+<td>JGE/JNL</td>
+<td>больше или равно/не меньше</td>
+<td>SF=OF</td>
+</tr>
+<tr>
+<td>JL/JNGE</td>
+<td>меньше/не больше и не равно</td>
+<td>SF≠OF</td>
+</tr>
+<tr>
+<td>JLE/JNG</td>
+<td>меньше или равно/не больше</td>
+<td>ZF=1 или SF≠OF</td>
+</tr>
+<tr>
+<td>JCXZ</td>
+<td>содержимое CX равно нулю</td>
+<td>CX=0</td>
+</tr>
+</tbody>
+</table>
+<h2>Вызов процедур</h2>
+<p>Для работы с процедурами предназначены команды <a href="http://asmworld.ru/spravochnik-komand/call">CALL</a> и <a href="http://asmworld.ru/spravochnik-komand/ret">RET</a>. С помощью команды <a href="http://asmworld.ru/spravochnik-komand/call">CALL</a> выполняется вызов процедуры. Эта команда работает почти также, как команда безусловного перехода (<a href="http://asmworld.ru/spravochnik-komand/jmp">JMP</a>), но с одним отличием — одновременно в стек сохраняется текущее значение регистра IP. Это позволяет потом вернуться к тому месту в коде, откуда была вызвана процедура. В качестве операнда указывается адрес перехода, который может быть непосредственным значением (меткой), 16-разрядным регистром (кроме сегментных) или ячейкой памяти, содержащей адрес.</p>
+<p>Возврат из процедуры выполняется командой <a href="http://asmworld.ru/spravochnik-komand/ret">RET</a>. Эта команда восстанавливает значение из вершины стека в регистр IP. Таким образом, выполнение программы продолжается с команды, следующей сразу после команды <a href="http://asmworld.ru/spravochnik-komand/call">CALL</a>. Обычно код процедуры заканчивается этой командой.</p>
+<p>Как передавать аргументы в процедуру? конечно же через стек</p>
+<pre><code class="hljs language-asm">push ax
+pop ax
+</code></pre>
+<p>но в x86 все немного сложней</p>
+<h3>Правила вызывающей стороны</h3>
+<p>Перед вызовом функции вызывающая сторона должна:</p>
+<ol>
+<li>Сохранить в стек регистры, которые обязан сохранять вызывающий. Вызываемая функция может изменить некоторые регистры: чтобы не потерять данные, вызывающая сторона должна сохранить их в памяти до помещения в стек. Речь идёт о регистрах eax, ecx и edx. Если вы не используете какие-то из них, то их можно не сохранять.</li>
+<li>Записать аргументы функции на стек в обратном порядке (сначала последний аргумент, в конце первый аргумент). Такой порядок гарантирует, что вызываемая функция получит из стека свои аргументы в правильном порядке.</li>
+<li>Вызвать подпрограмму.</li>
+</ol>
+<p>По возможности функция сохранит результат в eax. Сразу после call вызывающая сторона должна:</p>
+<ol>
+<li>Удалить из стека аргументы функции. Обычно это делается путём простого добавления числа байтов в esp. Не забывайте, что стек растёт вниз, поэтому для удаления из стека необходимо добавить байты.</li>
+<li>Восстановить сохранённые регистры, забрав их из стека в обратном порядке инструкцией pop. Вызываемая функция не изменит никакие другие регистры.</li>
+</ol>
+<p>Следующий пример демонстрирует, как применяются эти правила. Предположим, что функция <code>_subtract</code> принимает два целочисленных (4-байтовых) аргумента и возвращает первый аргумент за вычетом второго. В подпрограмме <code>_mysubroutine</code> вызываем <code>_subtract</code> с аргументами 10 и 2:</p>
+<p>_mysubroutine:</p>
+<pre><code class="hljs language-asm">    ; ...
+    ; здесь какой-то код
+    ; ...
+    push ecx       ; сохраняем регистры (я решил не сохранять eax)
+    push edx
+    push 2         ; второе правило, пушим аргументы в обратном порядке
+    push 10
+    call _subtract ; eax теперь равен 10-2=8
+    add esp, 8     ; удаляем 8 байт со стека (два аргумента по 4 байта)
+    pop edx        ; восстанавливаем сохранённые регистры
+    pop ecx
+    ; ...
+    ; ещё какой-то код, где я использую удивительно полезное значение из eax
+    ; ...
+</code></pre>
+<div class="separator"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+<p>Что-то уже дофига и многое осталось за кадром</p>
+<p>Упомянуть что такое операционная система, рассказать как устроены процессы в windows, рассказать немного о PE формате и способе загрузки программы в память</p>
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250112163401.png 640w, /v1/resize:fit:720/format:webp/20250112163401.png 720w, /v1/resize:fit:750/format:webp/20250112163401.png 750w, /v1/resize:fit:768/format:webp/20250112163401.png 768w, /v1/resize:fit:828/format:webp/20250112163401.png 828w, /v1/resize:fit:1100/format:webp/20250112163401.png 1100w, /v1/resize:fit:1400/format:webp/20250112163401.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250112163401.png 640w, /v1/resize:fit:720/20250112163401.png 720w, /v1/resize:fit:750/20250112163401.png 750w, /v1/resize:fit:768/20250112163401.png 768w, /v1/resize:fit:828/20250112163401.png 828w, /v1/resize:fit:1100/20250112163401.png 1100w, /v1/resize:fit:1400/20250112163401.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="1200" height="896" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250112163401.png">
+    </picture>
+    <figcaption>Архитектура компьютера</figcaption>
+  </figure>
+  
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250112163505.png 640w, /v1/resize:fit:720/format:webp/20250112163505.png 720w, /v1/resize:fit:750/format:webp/20250112163505.png 750w, /v1/resize:fit:768/format:webp/20250112163505.png 768w, /v1/resize:fit:828/format:webp/20250112163505.png 828w, /v1/resize:fit:1100/format:webp/20250112163505.png 1100w, /v1/resize:fit:1400/format:webp/20250112163505.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250112163505.png 640w, /v1/resize:fit:720/20250112163505.png 720w, /v1/resize:fit:750/20250112163505.png 750w, /v1/resize:fit:768/20250112163505.png 768w, /v1/resize:fit:828/20250112163505.png 828w, /v1/resize:fit:1100/20250112163505.png 1100w, /v1/resize:fit:1400/20250112163505.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="449" height="339" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250112163505.png">
+    </picture>
+    <figcaption>Очень простая схема описания операционной системы</figcaption>
+  </figure>
+  
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250112163734.png 640w, /v1/resize:fit:720/format:webp/20250112163734.png 720w, /v1/resize:fit:750/format:webp/20250112163734.png 750w, /v1/resize:fit:768/format:webp/20250112163734.png 768w, /v1/resize:fit:828/format:webp/20250112163734.png 828w, /v1/resize:fit:1100/format:webp/20250112163734.png 1100w, /v1/resize:fit:1400/format:webp/20250112163734.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250112163734.png 640w, /v1/resize:fit:720/20250112163734.png 720w, /v1/resize:fit:750/20250112163734.png 750w, /v1/resize:fit:768/20250112163734.png 768w, /v1/resize:fit:828/20250112163734.png 828w, /v1/resize:fit:1100/20250112163734.png 1100w, /v1/resize:fit:1400/20250112163734.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="504" height="462" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250112163734.png">
+    </picture>
+    <figcaption>Архитектура UNIX</figcaption>
+  </figure>
+  
+<h1>Процессы и потоки</h1>
+<p>Процесс обычно определяют как экземпляр выполняемой программы, и он состоит из двух компонентов:</p>
+<ul>
+<li>объекта ядра, через который операционная система управляет процессом. Там же хранится статистическая информация о процессе;</li>
+<li>адресного пространства, в котором содержится код и данные всех EXE и DLL модулей. Именно в нем находятся области памяти, динамически распределяемой для стеков потоков и других нужд.</li>
+</ul>
+<p>Процессы инертны. Чтобы процесс что нибудь выполнил, в нем нужно создать поток. Именно потоки отвечают за исполнение кода, содержащегося в адресном пространстве процесса. В принципе, один процесс может владеть несколькими потоками, и тогда они «одновременно» исполняют код в адресном пространстве процесса.</p>
+<p>Для этого каждый поток должен располагать собственным набором регистров процессора и собственным стеком. В каждом процессе есть минимум один поток. Если бы у процесса не было ни одного потока, ему нечего было бы делать на этом свете, и система автоматически уничтожила бы его вместе с выделенным ему адресным пространством.</p>
+<p>Чтобы все эти потоки работали, операционная система отводит каждому из них определенное процессорное время. Выделяя потокам отрезки времени (называемые квантами) по принципу карусели, она создает тем самым иллюзию одновременного выполнения потоков.</p>
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250112164002.png 640w, /v1/resize:fit:720/format:webp/20250112164002.png 720w, /v1/resize:fit:750/format:webp/20250112164002.png 750w, /v1/resize:fit:768/format:webp/20250112164002.png 768w, /v1/resize:fit:828/format:webp/20250112164002.png 828w, /v1/resize:fit:1100/format:webp/20250112164002.png 1100w, /v1/resize:fit:1400/format:webp/20250112164002.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250112164002.png 640w, /v1/resize:fit:720/20250112164002.png 720w, /v1/resize:fit:750/20250112164002.png 750w, /v1/resize:fit:768/20250112164002.png 768w, /v1/resize:fit:828/20250112164002.png 828w, /v1/resize:fit:1100/20250112164002.png 1100w, /v1/resize:fit:1400/20250112164002.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="1210" height="970" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250112164002.png">
+    </picture>
+    
+  </figure>
+  
+<p>При создании процесса первый (точнее, первичный) поток создается системой автоматически. Далее этот поток может породить другие потоки, те в свою очередь — новые и т. д.</p>
+<h1>Источники</h1>
+<ul>
+<li><a href="https://habr.com/ru/post/423077/">Руководство по ассемблеру x86 для начинающих</a></li>
+<li><a href="https://ru.wikibooks.org/wiki/%D0%90%D1%81%D1%81%D0%B5%D0%BC%D0%B1%D0%BB%D0%B5%D1%80_%D0%B2_Linux_%D0%B4%D0%BB%D1%8F_%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%81%D1%82%D0%BE%D0%B2_C">Ассемблер в Linux для программистов C</a></li>
+<li>“Цифровая схемотехника и архитектура компьютера” Дэвид М. Харрис и Сара Л. Харрис </li>
+<li>“Windows для профессионалов: создание эффективных Win32-приложений с учетом специфики 64-разрядной версии Windows” Дж. Рихтер</li>
+</ul></div></article><div class="post-tags"><div class="topics-list"><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/talk.html"><div class="topic-item-text">Talk</div></a></div></div></div></div></main><footer class="article-footer"><div class="container"><div class="content"><div class="space"></div><section class="author-section"><a class="author-section-left" rel="noopener follow" href="/"><div class="avatar-box"><img class="avatar mobile-hide" alt="Igor Riakhovskii" src="/v1/resize:fill:96:96/public/avatar.jpg" width="48" height="48" loading="lazy"><div class="avatar-shadow mobile-hide"></div><img class="avatar-big mobile-only" alt="Igor Riakhovskii" src="/v1/resize:fill:128:128/public/avatar.jpg" width="64" height="64" loading="lazy"><div class="avatar-big-shadow mobile-only"></div></div></a><div><a class="author-name" rel="noopener follow" href="/">Written by Igor Riakhovskii</a><div class="author-summary">In commercial development since 2005. At the moment, I am engaged in product development of cloud systems in the role of Technical Lead</div></div></section></div></div></footer></body></html>
