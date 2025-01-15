@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="/stylesheets/style.1d25f9ca42.css"><link rel="icon" href="/images/favicon.ico"><link rel="apple-touch-icon" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><script src="/javascripts/counter.js" async></script><title>Публикация swagger, redoc в gitlab pages | by Igor Riakhovskii</title><meta name="description" content="Генерируйте свои \*.swagger.json-ы, кладете их в папку public в корне репозитория."><meta property="og:title" content="Публикация swagger, redoc в gitlab pages"><meta property="og:description" content="Генерируйте свои \*.swagger.json-ы, кладете их в папку public в корне репозитория."><meta property="og:type" content="article"><meta property="article:published_time" content="2025-01-15T21:16:02+03:00"><meta property="article:modified_time" content="2025-01-15T21:28:10+03:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><script src="/javascripts/header.js" defer></script></head><body><header class="header-panel"><div class="header-panel-wrap"><a class="header-panel-logo" href="/" rel="noopener follow">IR</a></div></header><main class="article-layout"><div class="container"><article><h1 class="post-title">Публикация swagger, redoc в gitlab pages</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>1 min read</span><span class="separator">·</span><span>Jan 15</span></div></div></section><div class="post-content"><p>Генерируйте свои *.swagger.json-ы, кладете их в папку public в корне репозитория.</p>
+<p>Рядом кладете 2 файла:</p>
+<ul>
+<li><a href="https://gist.github.com/Garik-/63096ee9103823e1cb254a4f9bcb2bfb">swagger.html</a></li>
+<li><a href="https://gist.github.com/Garik-/8118226ddac72d685a8c7ef63656c5db">redoc.html</a></li>
+</ul>
+<p>Прописываете публикацию pages в <code>gitlab-ci.yml</code></p>
+<pre><code class="hljs language-yaml"><span class="hljs-attr">deploy-pages:</span>  
+	<span class="hljs-attr">stage:</span> <span class="hljs-string">deploy</span>  
+	<span class="hljs-attr">pages:</span> <span class="hljs-literal">true</span> <span class="hljs-comment"># specifies that this is a Pages job  </span>
+	<span class="hljs-attr">artifacts:</span>  
+	<span class="hljs-attr">paths:</span>  
+		<span class="hljs-bullet">-</span> <span class="hljs-string">public</span>  
+</code></pre>
+<h2>Pros</h2>
+<ul>
+<li>красиво</li>
+<li>не нужен доступ к репозиторию, чтобы поделиться документацией с коллегами</li>
+<li>документация всегда актуальна</li>
+</ul>
+<h2>Cons</h2>
+<ul>
+<li>ссылку на документацию придется делать руками</li>
+</ul>
+<div class="separator"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+<p>P.S.: это не обязательно должен быть какой-то отдельный репозиторий с контрактами, можете в каждом репозитории, где есть swagger.json, сделать pages, а потом в документации конфлюенс вставить нужные ссылки на автоматически генерируемую доку.</p></div></article></div></main><footer class="article-footer"><div class="container"><div class="content"><div class="space"></div><section class="author-section"><a class="author-section-left" rel="noopener follow" href="/"><div class="avatar-box"><img class="avatar mobile-hide" alt="Igor Riakhovskii" src="/v1/resize:fill:96:96/public/avatar.jpg" width="48" height="48" loading="lazy"><div class="avatar-shadow mobile-hide"></div><img class="avatar-big mobile-only" alt="Igor Riakhovskii" src="/v1/resize:fill:128:128/public/avatar.jpg" width="64" height="64" loading="lazy"><div class="avatar-big-shadow mobile-only"></div></div></a><div><a class="author-name" rel="noopener follow" href="/">Written by Igor Riakhovskii</a><div class="author-summary">In commercial development since 2005. At the moment, I am engaged in product development of cloud systems in the role of Technical Lead</div></div></section></div></div></footer></body></html>
