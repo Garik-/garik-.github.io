@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  
+<url>
+  <loc>https://gariktalksabout.tech/</loc>
+  <lastmod>2025-01-17T22:17:29+03:00</lastmod>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/chto-takoe-cloud-application.html</loc>
+  <lastmod>2025-01-13T01:23:09+03:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/arhitektura-mnogopotochnyh-prilozhenii.html</loc>
+  <lastmod>2025-01-12T04:24:17+03:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/chto-takoe-highload.html</loc>
+  <lastmod>2025-01-15T22:36:16+03:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/mq-metrics-alerts.html</loc>
+  <lastmod>2025-01-13T01:22:15+03:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/greydy-po-standartu-minobrazovaniya.html</loc>
+  <lastmod>2025-01-12T15:22:02+03:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/kak-rabotayut-programmy.html</loc>
+  <lastmod>2019-03-31T15:00:00+03:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/poluchaem-dostup-k-istorii-perepiski-i-kontaktam-v-populyarnom-messendzhere.html</loc>
+  <lastmod>2012-11-30T15:00:00+04:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/izuchaem-protokol-mmp-i-pishem-alternativnyy-klient.html</loc>
+  <lastmod>2012-01-12T00:31:00+04:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/as-a-service.html</loc>
+  <lastmod>2025-01-13T01:23:03+03:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/publikaciya-swagger-redoc-v-gitlab-pages.html</loc>
+  <lastmod>2025-01-15T21:30:57+03:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/cloud.html</loc>
+  <lastmod>2025-01-17T22:17:29+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/note.html</loc>
+  <lastmod>2025-01-17T22:17:29+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/mq.html</loc>
+  <lastmod>2025-01-17T22:17:29+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/devops.html</loc>
+  <lastmod>2025-01-17T22:17:29+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/observability.html</loc>
+  <lastmod>2025-01-17T22:17:29+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/architecture.html</loc>
+  <lastmod>2025-01-17T22:17:29+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/golang.html</loc>
+  <lastmod>2025-01-17T22:17:29+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/network.html</loc>
+  <lastmod>2025-01-17T22:17:29+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/talk.html</loc>
+  <lastmod>2025-01-17T22:17:29+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+</urlset>
