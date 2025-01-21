@@ -1,0 +1,119 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1"><meta name="robots" content="index,noarchive,follow,max-image-preview:large"><meta name="referrer" content="unsafe-url"><link rel="stylesheet" href="/stylesheets/style.1d25f9ca42.css"><link rel="icon" href="/images/favicon.ico"><link rel="apple-touch-icon" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><script src="/javascripts/counter.js" async></script><title>STM32L-DISCOVERY + FDD | by Igor Riakhovskii</title><meta name="title" content="STM32L-DISCOVERY + FDD | by Igor Riakhovskii"><meta name="description" content="Для того что бы подключить STM32L-DISCOVERY к FDD тебе понадобится 4 провода и 2 джампера.
+"><meta property="og:title" content="STM32L-DISCOVERY + FDD"><meta property="og:description" content="Для того что бы подключить STM32L-DISCOVERY к FDD тебе понадобится 4 провода и 2 джампера.
+"><meta property="og:url" content="https://gariktalksabout.tech/stm32l-discovery-fdd.html"><meta property="og:site_name" content="Igor Riakhovskii"><meta property="og:type" content="article"><meta property="og:image" content="https://gariktalksabout.tech/v1/resize:fit:1200/20250121214934.png"><meta property="og:image:width" content="600"><meta property="og:image:height" content="495"><meta property="article:published_time" content="2014-04-27T09:36:00+04:00"><meta property="article:modified_time" content="2014-04-27T09:36:00+04:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><link rel="author" href="https://gariktalksabout.tech/"><link rel="canonical" href="https://gariktalksabout.tech/stm32l-discovery-fdd.html"><script type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://gariktalksabout.tech/stm32l-discovery-fdd.html","dateCreated":"2014-04-27T09:36:00+04:00","datePublished":"2014-04-27T09:36:00+04:00","dateModified":"2014-04-27T09:36:00+04:00","headline":"STM32L-DISCOVERY + FDD","name":"STM32L-DISCOVERY + FDD","description":"Для того что бы подключить STM32L-DISCOVERY к FDD тебе понадобится 4 провода и 2 джампера.\n","identifier":73172222,"author":{"@type":"Person","name":"Igor Riakhovskii","url":"https://gariktalksabout.tech/"},"creator":["Igor Riakhovskii"],"mainEntityOfPage":"https://gariktalksabout.tech/stm32l-discovery-fdd.html","image":["https://gariktalksabout.tech/v1/resize:fit:1200/20250121214934.png"]}</script><script src="/javascripts/header.js" defer></script></head><body><header class="header-panel"><div class="header-panel-wrap"><a class="header-panel-logo" href="/" rel="noopener follow">IR</a></div></header><main class="article-layout"><div class="container"><article><h1 class="post-title">STM32L-DISCOVERY + FDD</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>3 min read</span><span class="separator">·</span><span>Apr 27, 2014</span></div></div></section><div class="post-content">
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250121214934.png 640w, /v1/resize:fit:720/format:webp/20250121214934.png 720w, /v1/resize:fit:750/format:webp/20250121214934.png 750w, /v1/resize:fit:768/format:webp/20250121214934.png 768w, /v1/resize:fit:828/format:webp/20250121214934.png 828w, /v1/resize:fit:1100/format:webp/20250121214934.png 1100w, /v1/resize:fit:1400/format:webp/20250121214934.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250121214934.png 640w, /v1/resize:fit:720/20250121214934.png 720w, /v1/resize:fit:750/20250121214934.png 750w, /v1/resize:fit:768/20250121214934.png 768w, /v1/resize:fit:828/20250121214934.png 828w, /v1/resize:fit:1100/20250121214934.png 1100w, /v1/resize:fit:1400/20250121214934.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="600" height="495" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250121214934.png">
+    </picture>
+    
+  </figure>
+  
+<p>Для того что бы подключить STM32L-DISCOVERY к FDD тебе понадобится 4 провода и 2 джампера.</p>
+<h1>Всё что нужно знать о Floppy Disk Drive</h1>
+<ul>
+<li><a href="http://www.interfacebus.com/PC_Floppy_Drive_PinOut.html" rel="noopener ugc nofollow" target="_blank">Floppy Disk Drive Pinout</a> — очень подробно;</li>
+<li><a href="http://quantumnet.wikidot.com/interfacing-a-floppy-drive" rel="noopener ugc nofollow" target="_blank">Interfacing A Floppy Drive</a> — здесь расписан псевдокод операций чтения и записи;</li>
+<li><a href="http://www.duinomite.com/duinomite-plays-the-imperial-march/" rel="noopener ugc nofollow" target="_blank">Duinomite plays the Imperial march</a> — пример подключения девайса.</li>
+</ul>
+<p>P.S: Время ночь, это моя первая заметка на данную тематику, особых познаний у меня нет, всё подробно расписано на тематических ресурсах, но на то что бы с этим разобраться пришлось потратить уйму времени. В планах сделать из дисковода <a href="http://en.wikipedia.org/wiki/Ring_Tone_Transfer_Language" rel="noopener ugc nofollow" target="_blank">RTTTL</a> плеер.</p>
+<h1>С чего начать?</h1>
+<p>Если посмотреть распиновку разъема то все входы/выходы являются четными, нечетные ножки это земля (GND). На дисководе должен быть зазор, что бы правильно вставить шлейф, переверни девайс зазором вниз, верхняя левая ножка это 2.</p>
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250121215138.png 640w, /v1/resize:fit:720/format:webp/20250121215138.png 720w, /v1/resize:fit:750/format:webp/20250121215138.png 750w, /v1/resize:fit:768/format:webp/20250121215138.png 768w, /v1/resize:fit:828/format:webp/20250121215138.png 828w, /v1/resize:fit:1100/format:webp/20250121215138.png 1100w, /v1/resize:fit:1400/format:webp/20250121215138.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250121215138.png 640w, /v1/resize:fit:720/20250121215138.png 720w, /v1/resize:fit:750/20250121215138.png 750w, /v1/resize:fit:768/20250121215138.png 768w, /v1/resize:fit:828/20250121215138.png 828w, /v1/resize:fit:1100/20250121215138.png 1100w, /v1/resize:fit:1400/20250121215138.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="201" height="48" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250121215138.png">
+    </picture>
+    
+  </figure>
+  
+<h2>Логические уровни TTL</h2>
+<blockquote>
+<p>In anycase the floppy interface used 5v TTL as the electrical interface, which would also comply with LVTTL switching levels.</p>
+</blockquote>
+<p>На выходах отладочной платы логическая единица это 3.3в, а FDD интерфейс использует 5в, это означает, что подключать FDD нужно к «5v tolerant» пинам. Что бы их найти, достаточно открыть <a href="http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/CD00277537.pdf" rel="noopener ugc nofollow" target="_blank">даташит</a> контроллера <strong>STM32L152RBT6</strong>, который установлен на STM32L-DISCOVERY и посмотреть таблицу с названием "...pin definitions". Если в колонке «I/O structure» стоит «FT» (five-volt tolerant) значит на пин можно смело подавать 5в.</p>
+<p>Из <a href="http://www.interfacebus.com/PC_Floppy_Drive_PinOut.html" rel="noopener ugc nofollow" target="_blank">подробного мануала</a> нам известны логические уровни TTL</p>
+<blockquote>
+<p>An Input high voltage of 2.0 volts and and input low voltage of 0.8 volts.<br>
+An Output high voltage of 2.4 volts and and input low voltage of 0.5 volts.</p>
+</blockquote>
+<p>это означает что 3.3в нам хватит с головой для подачи логической единицы.</p>
+<p>В идеале, для согласования логических уровней у устройств должна быть общая земля, поэтому запитаем отладочную плату прямо от дисковода.<br>
+На дисководе есть стандартный <a href="http://www.interfacebus.com/ATX_Motherboard_FDD_Power_PinOut.html" rel="noopener ugc nofollow" target="_blank">разъем питания</a>.</p>
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250121215259.png 640w, /v1/resize:fit:720/format:webp/20250121215259.png 720w, /v1/resize:fit:750/format:webp/20250121215259.png 750w, /v1/resize:fit:768/format:webp/20250121215259.png 768w, /v1/resize:fit:828/format:webp/20250121215259.png 828w, /v1/resize:fit:1100/format:webp/20250121215259.png 1100w, /v1/resize:fit:1400/format:webp/20250121215259.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250121215259.png 640w, /v1/resize:fit:720/20250121215259.png 720w, /v1/resize:fit:750/20250121215259.png 750w, /v1/resize:fit:768/20250121215259.png 768w, /v1/resize:fit:828/20250121215259.png 828w, /v1/resize:fit:1100/20250121215259.png 1100w, /v1/resize:fit:1400/20250121215259.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="450" height="98" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250121215259.png">
+    </picture>
+    
+  </figure>
+  
+<p>Припаиваем два проводка к плате дисковода (на 1 и 2 пин) и втыкаем в EXT_5V и GND на STM32L-DISCOVERY.</p>
+<h1>Как управлять FDD?</h1>
+<p>Для управления шаговым двигателем дисковода используется два пина, 18 DIR «Direction» и 20 STEP «Step».<br>
+Сначала нужно задать направление движения подав LOW (0) или HIGH (1) на DIR, а после этого сдвинуть головку на один трек:</p>
+<blockquote>
+<p>Step=LOW<br>
+Delay(1mS)<br>
+Step=HIGH</p>
+</blockquote>
+<h2>Пишем тестовую прошивку</h2>
+<pre><code class="hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"stm32l1xx.h"</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"stm32l1xx_rcc.h"</span></span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> DIR GPIO_Pin_1   <span class="hljs-comment">// 18 // PA1</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> STEP GPIO_Pin_2  <span class="hljs-comment">// 20 // PA2</span></span>
+
+<span class="hljs-type">void</span> <span class="hljs-title function_">delay_ms</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> delay)</span> {
+  TIM6->PSC = <span class="hljs-number">2096</span>;
+  TIM6->ARR = delay;
+  TIM6->EGR |= TIM_EGR_UG;
+  TIM6->CR1 |= TIM_CR1_CEN | TIM_CR1_OPM;
+  <span class="hljs-keyword">while</span> ((TIM6->CR1 &#x26; TIM_CR1_CEN) != <span class="hljs-number">0</span>);
+}
+
+<span class="hljs-type">void</span> <span class="hljs-title function_">InitPeriph</span><span class="hljs-params">()</span> {
+  GPIO_InitTypeDef GPIOConfig;
+
+  GPIOConfig.GPIO_Speed = GPIO_Speed_40MHz;
+  GPIOConfig.GPIO_Mode = GPIO_Mode_OUT;
+  GPIOConfig.GPIO_OType = GPIO_OType_PP;
+  GPIOConfig.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIOConfig.GPIO_Pin = DIR | STEP;
+
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+  GPIO_Init(GPIOA, &#x26;GPIOConfig);
+
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
+}
+
+<span class="hljs-type">void</span> <span class="hljs-title function_">move</span><span class="hljs-params">()</span> {
+  GPIO_ResetBits(GPIOA, STEP);
+  delay_ms(<span class="hljs-number">1</span>);
+  GPIO_SetBits(GPIOA, STEP);
+}
+
+<span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span> {
+  <span class="hljs-type">int</span> i;
+  InitPeriph();
+  <span class="hljs-keyword">for</span> (;;) {
+    GPIO_ResetBits(GPIOA, DIR);
+    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &#x3C; <span class="hljs-number">100</span>; i++) {
+      move();
+    }
+    delay_ms(<span class="hljs-number">1000</span>);
+    GPIO_SetBits(GPIOA, DIR);
+    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &#x3C; <span class="hljs-number">100</span>; i++) {
+      move();
+    }
+    delay_ms(<span class="hljs-number">2500</span>);
+  }
+}
+</code></pre>
+<p>Настраиваем порты GPIO на вывод обычного логического сигнала, включаем тактирование порта вывода и 6 таймера общего назначения. Шины к которым они подключены можно посмотреть в даташите. Далее в бесконечном цикле крутим шаговый двигатель на 100 треков, то назад то вперед.<br>
+Магическая цифра 2096 это стандартная внутренняя частота работы данного контроллера (2,097 МГц).</p></div></article></div></main><footer class="article-footer"><div class="container"><div class="content"><div class="space"></div><section class="author-section"><a class="author-section-left" rel="noopener follow" href="/"><div class="avatar-box"><img class="avatar mobile-hide" alt="Igor Riakhovskii" src="/v1/resize:fill:96:96/public/avatar.jpg" width="48" height="48" loading="lazy"><div class="avatar-shadow mobile-hide"></div><img class="avatar-big mobile-only" alt="Igor Riakhovskii" src="/v1/resize:fill:128:128/public/avatar.jpg" width="64" height="64" loading="lazy"><div class="avatar-big-shadow mobile-only"></div></div></a><div><a class="author-name" rel="noopener follow" href="/">Written by Igor Riakhovskii</a><div class="author-summary">In commercial development since 2005. At the moment, I am engaged in product development of cloud systems in the role of Technical Lead</div></div></section></div></div></footer></body></html>
