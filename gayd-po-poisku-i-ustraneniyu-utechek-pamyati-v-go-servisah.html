@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1"><meta name="robots" content="index,noarchive,follow,max-image-preview:large"><meta name="referrer" content="unsafe-url"><link rel="stylesheet" href="/stylesheets/style.1d25f9ca42.css"><link rel="icon" href="/images/favicon.ico"><link rel="apple-touch-icon" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><script src="/javascripts/counter.js" async></script><title>Гайд по поиску и устранению утечек памяти в Go сервисах | by Igor Riakhovskii</title><meta name="title" content="Гайд по поиску и устранению утечек памяти в Go сервисах | by Igor Riakhovskii"><meta name="description" content="Все просто, посмотреть на график изменения потребления памяти вашим сервисом в системе мониторинга.
+"><meta property="og:title" content="Гайд по поиску и устранению утечек памяти в Go сервисах"><meta property="og:description" content="Все просто, посмотреть на график изменения потребления памяти вашим сервисом в системе мониторинга.
+"><meta property="og:url" content="https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html"><meta property="og:site_name" content="Igor Riakhovskii"><meta property="og:type" content="article"><meta property="og:image" content="https://gariktalksabout.tech/v1/resize:fit:1200/20250121225602.png"><meta property="og:image:width" content="682"><meta property="og:image:height" content="270"><meta property="article:published_time" content="2022-03-22T03:32:00+03:00"><meta property="article:modified_time" content="2025-01-21T23:13:52+03:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><meta property="article:tag" content="Golang"><meta property="article:tag" content="Observability"><meta property="article:tag" content="Prometheus"><meta property="article:tag" content="Grafana"><meta property="article:tag" content="Docker"><meta property="article:tag" content="Memory Leak"><link rel="author" href="https://gariktalksabout.tech/"><link rel="canonical" href="https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html"><script type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html","dateCreated":"2022-03-22T03:32:00+03:00","datePublished":"2022-03-22T03:32:00+03:00","dateModified":"2025-01-21T23:13:52+03:00","headline":"Гайд по поиску и устранению утечек памяти в Go сервисах","name":"Гайд по поиску и устранению утечек памяти в Go сервисах","description":"Все просто, посмотреть на график изменения потребления памяти вашим сервисом в системе мониторинга.\n","identifier":73180712,"author":{"@type":"Person","name":"Igor Riakhovskii","url":"https://gariktalksabout.tech/"},"creator":["Igor Riakhovskii"],"mainEntityOfPage":"https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html","image":["https://gariktalksabout.tech/v1/resize:fit:1200/20250121225602.png"]}</script><script src="/javascripts/header.js" defer></script></head><body><header class="header-panel"><div class="header-panel-wrap"><a class="header-panel-logo" href="/" rel="noopener follow">IR</a></div></header><main class="article-layout"><div class="container"><article><h1 class="post-title">Гайд по поиску и устранению утечек памяти в Go сервисах</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>5 min read</span><span class="separator">·</span><span>Mar 22, 2022</span></div></div></section><div class="post-content"><h1>Как обнаружить утечку?</h1>
+<p>Все просто, посмотреть на график изменения потребления памяти вашим сервисом в системе мониторинга.</p>
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250121225602.png 640w, /v1/resize:fit:720/format:webp/20250121225602.png 720w, /v1/resize:fit:750/format:webp/20250121225602.png 750w, /v1/resize:fit:768/format:webp/20250121225602.png 768w, /v1/resize:fit:828/format:webp/20250121225602.png 828w, /v1/resize:fit:1100/format:webp/20250121225602.png 1100w, /v1/resize:fit:1400/format:webp/20250121225602.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250121225602.png 640w, /v1/resize:fit:720/20250121225602.png 720w, /v1/resize:fit:750/20250121225602.png 750w, /v1/resize:fit:768/20250121225602.png 768w, /v1/resize:fit:828/20250121225602.png 828w, /v1/resize:fit:1100/20250121225602.png 1100w, /v1/resize:fit:1400/20250121225602.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="682" height="270" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250121225602.png">
+    </picture>
+    <figcaption>Серверу плоха</figcaption>
+  </figure>
+  
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250121225711.png 640w, /v1/resize:fit:720/format:webp/20250121225711.png 720w, /v1/resize:fit:750/format:webp/20250121225711.png 750w, /v1/resize:fit:768/format:webp/20250121225711.png 768w, /v1/resize:fit:828/format:webp/20250121225711.png 828w, /v1/resize:fit:1100/format:webp/20250121225711.png 1100w, /v1/resize:fit:1400/format:webp/20250121225711.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250121225711.png 640w, /v1/resize:fit:720/20250121225711.png 720w, /v1/resize:fit:750/20250121225711.png 750w, /v1/resize:fit:768/20250121225711.png 768w, /v1/resize:fit:828/20250121225711.png 828w, /v1/resize:fit:1100/20250121225711.png 1100w, /v1/resize:fit:1400/20250121225711.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="599" height="307" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250121225711.png">
+    </picture>
+    
+  </figure>
+  
+<p>На всех этих картинках видно, что график потребления памяти только растет со временем, но никогда не убывает. Интервал может быть любым, посмотрите график за день, неделю или месяц.</p>
+<h1>Как настроить мониторинг?</h1>
+<p>Тестировать наш сервис мы будем локально без помощи DevOps-инженеров. Для работы нам понадобится git, Docker и терминал, а разворачивать мы будем связку Grafana и Prometheus.</p>
+<p><strong>Grafana</strong> это интерфейс для построения красивых графиков, диаграмм и dashboard-ов из них. <strong>Prometheus</strong> это система, которая включает в себя базу данных временных рядов и специального агента, который занимается сбором метрик с ваших сервисов.</p>
+<p>Для того что бы быстро развернуть это всё на локальной машине воспользуемся готовым решением <a href="https://github.com/vegasbrianc/prometheus" rel="noopener ugc nofollow" target="_blank">https://github.com/vegasbrianc/prometheus</a>:</p>
+<pre><code class="hljs language-sh">$ git <span class="hljs-built_in">clone</span> git@github.com:vegasbrianc/prometheus.git
+$ <span class="hljs-built_in">cd</span> prometheus
+$ HOSTNAME=$(hostname) docker stack deploy -c docker-stack.yml prom
+</code></pre>
+<p>После запуска по ссылке <code>http://&#x3C;Host IP Address>:3000</code> у нас должна открыться Grafana. Читайте README в репозитории, там всё подробно расписано.</p>
+<h2>Prometheus client</h2>
+<p>Теперь нам нужно научить наш сервис отдавать метрики, для этого нам понадобится <a href="https://prometheus.io/docs/instrumenting/clientlibs/" rel="noopener ugc nofollow" target="_blank">Prometheus client</a>.</p>
+<p><a href="https://github.com/prometheus/client_golang/blob/main/examples/simple/main.go" rel="noopener ugc nofollow" target="_blank">Код примера из официального репозитория</a></p>
+<pre><code class="hljs language-go"><span class="hljs-keyword">package</span> main
+
+<span class="hljs-keyword">import</span> (
+	<span class="hljs-string">"flag"</span>
+	<span class="hljs-string">"log"</span>
+	<span class="hljs-string">"net/http"</span>
+
+	<span class="hljs-string">"github.com/prometheus/client_golang/prometheus/promhttp"</span>
+)
+
+<span class="hljs-keyword">var</span> addr = flag.String(<span class="hljs-string">"listen-address"</span>, <span class="hljs-string">":8080"</span>, <span class="hljs-string">"The address to listen on for HTTP requests."</span>)
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> {
+	flag.Parse()
+	http.Handle(<span class="hljs-string">"/metrics"</span>, promhttp.Handler())
+	log.Fatal(http.ListenAndServe(*addr, <span class="hljs-literal">nil</span>))
+}
+</code></pre>
+<p>Самые важные строчки это 8 и 15 в 90% случаев их будет достаточно.</p>
+<pre><code class="hljs language-go"><span class="hljs-string">"github.com/prometheus/client_golang/prometheus/promhttp"</span>
+<span class="hljs-comment">// ...</span>
+http.Handle(<span class="hljs-string">"/metrics"</span>, promhttp.Handler())
+<span class="hljs-comment">// ...</span>
+</code></pre>
+<p>После запуска проверьте, что на endpoint-е <code>/metrics</code> появились данные.</p>
+<h2>Добавляем job в Prometheus agent</h2>
+<p>В папке репозитория prometheus найдите файлик prometheus.yml, там есть секция scrape_configs, добавьте туда свою job-у</p>
+<pre><code class="hljs language-yaml"><span class="hljs-attr">scrape_configs:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">job_name:</span> <span class="hljs-string">'my-service'</span>
+    <span class="hljs-attr">scrape_interval:</span> <span class="hljs-string">5s</span>
+    <span class="hljs-attr">static_configs:</span>
+         <span class="hljs-bullet">-</span> <span class="hljs-attr">targets:</span> [<span class="hljs-string">'192.168.1.4:8080'</span>]
+</code></pre>
+<p><code>194.168.1.4</code> это IP адрес вашей локальной машины. Узнать его можно командой ipconfig, ifconfig обычно интерфейс называется en0, так же можно использовать <code>host.docker.internal</code></p>
+<pre><code class="hljs language-sh">$ ifconfig
+en0: flags=8863&#x3C;UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	options=6463&#x3C;RXCSUM,TXCSUM,TSO4,TSO6,CHANNEL_IO,PARTIAL_CSUM,ZEROINVERT_CSUM>
+	ether f4:d4:88:7a:99:ce
+	inet6 fe80::1413:b61f:c073:6a8e%en0 prefixlen 64 secured scopeid 0xe
+	inet 192.168.1.4 netmask 0xffffff00 broadcast 192.168.1.255
+	nd6 options=201&#x3C;PERFORMNUD,DAD>
+	media: autoselect
+	status: active
+</code></pre>
+<p>Так же не забудьте поменять в своём сервисе IP адрес запуска, сейчас там прописано <code>":8080"</code> что по факту означает IP адрес текущей машины <code>127.0.0.1</code>, для верности напишите <code>"192.168.1.4:8080"</code></p>
+<pre><code class="hljs language-go"><span class="hljs-keyword">var</span> addr = flag.String(<span class="hljs-string">"listen-address"</span>, <span class="hljs-string">"192.168.1.4:8080"</span>, <span class="hljs-string">"The address to listen on for HTTP requests."</span>)
+</code></pre>
+<h3>Зачем прописывать IP?</h3>
+<p>Дело в том что docker stack в данной конфигурации запускает Grafana и Prometheus в своем изолированном network-е, они не видят ваш localhost, он у них свой. Конечно можно запустить ваш сервис в контексте сети docker-а, но прописать прямой IP локального интерфейса это самый простой путь подружить контейнеры запущенные внутри сети докера с вашими сервисами запущенными локально.</p>
+<h3>Применяем настройки</h3>
+<p>В папке с репозиторием выполняем команды</p>
+<pre><code class="hljs language-sh">$ docker stack <span class="hljs-built_in">rm</span> prom
+$ HOSTNAME=$(hostname) docker stack deploy -c docker-stack.yml prom
+</code></pre>
+<p>Убедиться, что все заработало после перезапуска, можно посмотрев на панель targets prometheus-а по адресу <a href="http://localhost:9090/" rel="noopener ugc nofollow" target="_blank">http://localhost:9090/</a></p>
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250121230535.png 640w, /v1/resize:fit:720/format:webp/20250121230535.png 720w, /v1/resize:fit:750/format:webp/20250121230535.png 750w, /v1/resize:fit:768/format:webp/20250121230535.png 768w, /v1/resize:fit:828/format:webp/20250121230535.png 828w, /v1/resize:fit:1100/format:webp/20250121230535.png 1100w, /v1/resize:fit:1400/format:webp/20250121230535.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250121230535.png 640w, /v1/resize:fit:720/20250121230535.png 720w, /v1/resize:fit:750/20250121230535.png 750w, /v1/resize:fit:768/20250121230535.png 768w, /v1/resize:fit:828/20250121230535.png 828w, /v1/resize:fit:1100/20250121230535.png 1100w, /v1/resize:fit:1400/20250121230535.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="1077" height="528" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250121230535.png">
+    </picture>
+    
+  </figure>
+  
+<h2>Настраиваем Grafana</h2>
+<p>Тут всё просто, надо поискать красивый dashboard для Go на <a href="https://grafana.com/grafana/dashboards/" rel="noopener ugc nofollow" target="_blank">официальном сайте</a> и импортировать его себе.</p>
+<p>Лично мне понравился этот: <a href="https://grafana.com/grafana/dashboards/14061" rel="noopener ugc nofollow" target="_blank">ссылка на dashboard</a>.</p>
+<h1>Нагрузочное тестирование</h1>
+<p>Что бы выявить утечку сервис нужно нагрузить реальной работой. В веб разработке основные транспортные протоколы между беком и фронтом это HTTP и Web Socket. Для них существует масса утилит нагрузочного тестирования, например</p>
+<pre><code class="hljs language-sh">$ ab -n 10000 -kc 100 http://192.168.1.4:8080/endpoint
+$ wrk -c 100 -d 10 -t 2 http://192.168.1.4:8080/endpoint
+</code></pre>
+<p>или тот же Jmeter, но мы будем использовать <a href="https://www.artillery.io/" rel="noopener ugc nofollow" target="_blank">artillery.io</a> так как у нас web socket-ы и мне было необходимо воспроизвести определенный сценарий, что бы словить memory leak.</p>
+<p>Для artillery понадобится node и npm, а так как я когда-то я программировал на node.js мне нравится проект <a href="https://volta.sh/" rel="noopener ugc nofollow" target="_blank">volta.sh</a>, это что-то вроде виртуального окружения в python, позволяет для каждого проекта иметь свою версию node.js и его утилит, но выбор за вами.</p>
+<p>Ставим артиллерию:</p>
+<pre><code class="hljs language-sh">$ npm install -g artillery@latest$ artillery -v
+</code></pre>
+<p>Пишем сценарий нагрузочного тестирования test.yml:</p>
+<pre><code class="hljs language-yaml"><span class="hljs-attr">config:</span>
+    <span class="hljs-attr">target:</span> <span class="hljs-string">"ws://192.168.1.4:8080/v1/ws"</span>
+    <span class="hljs-attr">phases:</span>
+        <span class="hljs-comment"># - duration: 60</span>
+        <span class="hljs-comment">#  arrivalRate: 5</span>
+        <span class="hljs-comment"># - duration: 120</span>
+        <span class="hljs-comment">#   arrivalRate: 5</span>
+        <span class="hljs-comment">#   rampTo: 50</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-attr">duration:</span> <span class="hljs-number">600</span>
+          <span class="hljs-attr">arrivalRate:</span> <span class="hljs-number">50</span>
+<span class="hljs-attr">scenarios:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">engine:</span> <span class="hljs-string">"ws"</span>
+      <span class="hljs-attr">name:</span> <span class="hljs-string">"Get current state"</span>
+      <span class="hljs-attr">flow:</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-attr">think:</span> <span class="hljs-number">0.5</span>
+</code></pre>
+<p>Последняя фаза добавляет 50 виртуальных пользователей каждую секунду в течение десяти минут. Каждый из которых сидит и думает 0.5 секунд, а можно сделать какие-нибудь запросы по сокетам или даже несколько.</p>
+<p>Запускаем и смотрим графики в Grafana:</p>
+<pre><code class="hljs language-sh">artillery run test.yml
+</code></pre>
+
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250121230735.png 640w, /v1/resize:fit:720/format:webp/20250121230735.png 720w, /v1/resize:fit:750/format:webp/20250121230735.png 750w, /v1/resize:fit:768/format:webp/20250121230735.png 768w, /v1/resize:fit:828/format:webp/20250121230735.png 828w, /v1/resize:fit:1100/format:webp/20250121230735.png 1100w, /v1/resize:fit:1400/format:webp/20250121230735.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250121230735.png 640w, /v1/resize:fit:720/20250121230735.png 720w, /v1/resize:fit:750/20250121230735.png 750w, /v1/resize:fit:768/20250121230735.png 768w, /v1/resize:fit:828/20250121230735.png 828w, /v1/resize:fit:1100/20250121230735.png 1100w, /v1/resize:fit:1400/20250121230735.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="1400" height="630" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250121230735.png">
+    </picture>
+    
+  </figure>
+  
+<h2>На что стоит обратить внимание</h2>
+<p>Кроме памяти стоит посмотреть, как ведут себя ваши goroutine. Часто проблемы бывают из-за того что рутина остается "висеть" и вся память выделенная ей и все переменные указатели на которые попали в нее остаются "висеть" мертвым грузом в памяти и не удаляются garbage collector-ом. Вы так же увидите это на графике. Банальный пример обработчик запроса в котором запускается рутина для "тяжелых" вычислений:</p>
+<pre><code class="hljs language-go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *Service)</span></span> Debug(w http.ResponseWriter, r *http.Request) {
+  <span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> { <span class="hljs-comment">/*...*/</span> }()
+  w.WriteHeader(http.StatusOK)
+  <span class="hljs-comment">//...</span>
+}
+</code></pre>
+<p>Эту проблему можно решить например через context, waitGroup, errGroup:</p>
+<pre><code class="hljs language-go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *Service)</span></span> Debug(w http.ResponseWriter, r *http.Request) {
+  ctx, cancel := context.WithCancel(r.Context())
+  <span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> {
+		<span class="hljs-keyword">for</span> {
+			<span class="hljs-keyword">select</span> {
+			<span class="hljs-keyword">case</span> &#x3C;-ctx.Done():
+				<span class="hljs-keyword">return</span>
+			<span class="hljs-keyword">default</span>:
+			}
+			<span class="hljs-comment">// ...</span>
+		}
+	}()
+  w.WriteHeader(http.StatusOK)
+  <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>Либо при регистрации клиента вы выделяете под него память, например данные его сессии, но не освобождаете её, когда клиент отключился от вас аварийно. Что-то типа</p>
+<pre><code class="hljs language-go"><span class="hljs-keyword">type</span> clientID <span class="hljs-type">string</span>
+<span class="hljs-keyword">type</span> session <span class="hljs-keyword">struct</span> {
+  role <span class="hljs-type">string</span>
+  refreshToken <span class="hljs-type">string</span>
+  <span class="hljs-comment">// ...</span>
+}
+<span class="hljs-keyword">var</span> clients <span class="hljs-keyword">map</span>[clientID]*clientSession
+</code></pre>
+<p>Следите за тем как вы передаете аргументы в функцию, по указателю или по значению. Используете ли вы глобальные переменные внутри пакетов? Не зависают ли в каналах и рутинах указатели на структуры данных? Graceful shutdown это про вас?</p>
+<p>Дать конкретные советы невозможно, каждый проект индивидуален, но знать как самостоятельно настроить мониторинг и отследить утечку, это большой шаг на пути к стабильности 99.9%.</p></div></article><div class="post-tags"><div class="topics-list"><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/golang.html"><div class="topic-item-text">Golang</div></a></div><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/observability.html"><div class="topic-item-text">Observability</div></a></div><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/prometheus.html"><div class="topic-item-text">Prometheus</div></a></div><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/grafana.html"><div class="topic-item-text">Grafana</div></a></div><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/docker.html"><div class="topic-item-text">Docker</div></a></div><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/memory-leak.html"><div class="topic-item-text">Memory Leak</div></a></div></div></div></div></main><footer class="article-footer"><div class="container"><div class="content"><div class="space"></div><section class="author-section"><a class="author-section-left" rel="noopener follow" href="/"><div class="avatar-box"><img class="avatar mobile-hide" alt="Igor Riakhovskii" src="/v1/resize:fill:96:96/public/avatar.jpg" width="48" height="48" loading="lazy"><div class="avatar-shadow mobile-hide"></div><img class="avatar-big mobile-only" alt="Igor Riakhovskii" src="/v1/resize:fill:128:128/public/avatar.jpg" width="64" height="64" loading="lazy"><div class="avatar-big-shadow mobile-only"></div></div></a><div><a class="author-name" rel="noopener follow" href="/">Written by Igor Riakhovskii</a><div class="author-summary">In commercial development since 2005. At the moment, I am engaged in product development of cloud systems in the role of Technical Lead</div></div></section></div></div></footer></body></html>

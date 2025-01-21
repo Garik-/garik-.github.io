@@ -7,7 +7,7 @@
   
 <url>
   <loc>https://gariktalksabout.tech/</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
@@ -66,73 +66,98 @@
   <priority>0.80</priority>
 </url>
 <url>
+  <loc>https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html</loc>
+  <lastmod>2025-01-21T23:13:52+03:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
   <loc>https://gariktalksabout.tech/tag/cloud.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/note.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/mq.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/devops.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/observability.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/diy.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/arm.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/stm32.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/fdd.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/ttl.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/architecture.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/golang.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/prometheus.html</loc>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/grafana.html</loc>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/docker.html</loc>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://gariktalksabout.tech/tag/memory-leak.html</loc>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/network.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://gariktalksabout.tech/tag/talk.html</loc>
-  <lastmod>2025-01-21T22:01:01+03:00</lastmod>
+  <lastmod>2025-01-21T23:16:55+03:00</lastmod>
   <priority>0.60</priority>
 </url>
 </urlset>
