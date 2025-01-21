@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1"><meta name="robots" content="index,noarchive,follow,max-image-preview:large"><meta name="referrer" content="unsafe-url"><link rel="stylesheet" href="/stylesheets/style.1d25f9ca42.css"><link rel="icon" href="/images/favicon.ico"><link rel="apple-touch-icon" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><script src="/javascripts/counter.js" async></script><title>Трассировка сервисов через очередь сообщений. OpenTelemetry, NATS | by Igor Riakhovskii</title><meta name="title" content="Трассировка сервисов через очередь сообщений. OpenTelemetry, NATS | by Igor Riakhovskii"><meta name="description" content="Это небольшой гайд о том, как обеспечить наблюдаемость в вашей событийно-ориентированной облачной системе.
+"><meta property="og:title" content="Трассировка сервисов через очередь сообщений. OpenTelemetry, NATS"><meta property="og:description" content="Это небольшой гайд о том, как обеспечить наблюдаемость в вашей событийно-ориентированной облачной системе.
+"><meta property="og:url" content="https://gariktalksabout.tech/trassirovka-servisov-cherez-ochered-soobscheniy-opentelemetry-nats.html"><meta property="og:site_name" content="Igor Riakhovskii"><meta property="og:type" content="article"><meta property="og:image" content="https://gariktalksabout.tech/v1/resize:fit:1200/20250121234958.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="822"><meta property="article:published_time" content="2023-03-18T02:27:00+03:00"><meta property="article:modified_time" content="2023-03-18T02:27:00+03:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><meta property="article:tag" content="Golang"><meta property="article:tag" content="DevOps"><meta property="article:tag" content="Observability"><link rel="author" href="https://gariktalksabout.tech/"><link rel="canonical" href="https://gariktalksabout.tech/trassirovka-servisov-cherez-ochered-soobscheniy-opentelemetry-nats.html"><script type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://gariktalksabout.tech/trassirovka-servisov-cherez-ochered-soobscheniy-opentelemetry-nats.html","dateCreated":"2023-03-18T02:27:00+03:00","datePublished":"2023-03-18T02:27:00+03:00","dateModified":"2023-03-18T02:27:00+03:00","headline":"Трассировка сервисов через очередь сообщений. OpenTelemetry, NATS","name":"Трассировка сервисов через очередь сообщений. OpenTelemetry, NATS","description":"Это небольшой гайд о том, как обеспечить наблюдаемость в вашей событийно-ориентированной облачной системе.\n","identifier":73195336,"author":{"@type":"Person","name":"Igor Riakhovskii","url":"https://gariktalksabout.tech/"},"creator":["Igor Riakhovskii"],"mainEntityOfPage":"https://gariktalksabout.tech/trassirovka-servisov-cherez-ochered-soobscheniy-opentelemetry-nats.html","image":["https://gariktalksabout.tech/v1/resize:fit:1200/20250121234958.png"]}</script><script src="/javascripts/header.js" defer></script></head><body><header class="header-panel"><div class="header-panel-wrap"><a class="header-panel-logo" href="/" rel="noopener follow">IR</a></div></header><main class="article-layout"><div class="container"><article><h1 class="post-title">Трассировка сервисов через очередь сообщений. OpenTelemetry, NATS</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>4 min read</span><span class="separator">·</span><span>Mar 18, 2023</span></div></div></section><div class="post-content">
+  <figure>
+    <picture>
+        <source srcset="/v1/resize:fit:640/format:webp/20250121234958.png 640w, /v1/resize:fit:720/format:webp/20250121234958.png 720w, /v1/resize:fit:750/format:webp/20250121234958.png 750w, /v1/resize:fit:768/format:webp/20250121234958.png 768w, /v1/resize:fit:828/format:webp/20250121234958.png 828w, /v1/resize:fit:1100/format:webp/20250121234958.png 1100w, /v1/resize:fit:1400/format:webp/20250121234958.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px" type="image/webp">
+        <source srcset="/v1/resize:fit:640/20250121234958.png 640w, /v1/resize:fit:720/20250121234958.png 720w, /v1/resize:fit:750/20250121234958.png 750w, /v1/resize:fit:768/20250121234958.png 768w, /v1/resize:fit:828/20250121234958.png 828w, /v1/resize:fit:1100/20250121234958.png 1100w, /v1/resize:fit:1400/20250121234958.png 1400w" sizes="(min-resolution: 4dppx) and (max-width: 700px) 50vw, (-webkit-min-device-pixel-ratio: 4) and (max-width: 700px) 50vw, (min-resolution: 3dppx) and (max-width: 700px) 67vw, (-webkit-min-device-pixel-ratio: 3) and (max-width: 700px) 65vw, (min-resolution: 2.5dppx) and (max-width: 700px) 80vw, (-webkit-min-device-pixel-ratio: 2.5) and (max-width: 700px) 80vw, (min-resolution: 2dppx) and (max-width: 700px) 100vw, (-webkit-min-device-pixel-ratio: 2) and (max-width: 700px) 100vw, 700px">
+        <img alt="" width="1400" height="959" loading="lazy" role="presentation" src="/v1/resize:fit:1400/20250121234958.png">
+    </picture>
+    
+  </figure>
+  
+<p>Это небольшой гайд о том, как обеспечить наблюдаемость в вашей событийно-ориентированной облачной системе.</p>
+<h1>Немного теории</h1>
+<h2>Cloud application</h2>
+<blockquote>
+<p>Облачные технологии позволяют организациям создавать и запускать масштабируемые приложения в современных динамических окружениях, таких как общедоступные, частные и гибридные облака…</p>
+<p>Они делают слабосвязанные системы устойчивыми, управляемыми и наблюдаемыми. В сочетании с надежной автоматизацией они позволяют инженерам часто и предсказуемо вносить важные изменения с минимальными усилиями</p>
+<p>– Cloud Native Computing Foundation (CNCF)</p>
+</blockquote>
+<p>Согласно этому определению, облачные приложения – больше, чем просто приложения, которые действуют в облаке. Они также <em>масштабируемы, слабо связаны, устойчивы, управляемы и доступны для наблюдения</em>. Можно сказать, что наличие этих «облачных атрибутов» позволяет называть системы облачными.</p>
+<h2>Event-driven architecture (EDA)</h2>
+<p>Архитектура, <em>управляемая событиями</em>, способствует слабой взаимозависимости между компонентами системы, что приводит к большей гибкости. Микросервисы могут масштабироваться независимо, выходить из строя без влияния на другие сервисы и снижать сложность рабочих процессов.</p>
+<h2>Observability</h2>
+<p><em>Наблюдаемость</em> системы – это мера простоты определения ее внутреннего состояния по наблюдаемым результатам. Система считается <em>наблюдаемой</em>, если можно быстро и последовательно получать ответы на все новые вопросы о ней с минимальными предварительными знаниями, без необходимости внедряться в существующий код или писать новый.</p>
+<h2>OpenTelemetry</h2>
+<p>OpenTelemetry, также известный как OTel, представляет собой открытый стандарт CNCF, который обеспечивает распределенную трассировку и сбор метрик из ваших приложений.</p>
+<h3>Trace Context</h3>
+<p>Это метаданные о span-ах в трассировке. Например, предположим, что служба A вызывает службу B, и вы хотите отследить вызов. В этом случае OpenTelemetry будет использовать Trace Context для захвата идентификатора трассировки и текущего span-а из службы A, чтобы span-ы, созданные в службе B, могли подключаться и добавляться к трассировке.</p>
+<p>Это известно как <em>распространение контекста</em>.</p>
+<h3>Context Propagation</h3>
+<p><em>Распространение контекста</em> - это основная концепция, которая обеспечивает распределенную трассировку. При распространении контекста span-ы могут быть соотнесены друг с другом и собраны в трассировку, независимо от того, где они генерируются. OpenTelemetry определяет распространение контекста с помощью двух субконцептов: Context и Propagation.</p>
+<p>Context - это объект, который содержит информацию для отправляющей и принимающей служб, позволяющую соотнести один span с другим и связать его с трассировкой в целом.</p>
+<p>Propagation - это механизм, который перемещает контекст между службами и процессами. Поступая таким образом, он собирает распределенную трассировку. Он сериализует или десериализует Span Context и предоставляет соответствующую информацию трассировки для распространения от одной службы к другой.</p>
+<h1>На практике</h1>
+<p>Хорошо, давайте создадим экземпляр <code>propagation</code> и инициализируем его:</p>
+<pre><code class="hljs language-go"><span class="hljs-keyword">import</span> (
+	<span class="hljs-string">"go.opentelemetry.io/otel"</span>
+	<span class="hljs-string">"go.opentelemetry.io/otel/propagation"</span>
+)
+
+tc := propagation.TraceContext{}
+<span class="hljs-comment">// Register the TraceContext propagator globally.</span>
+otel.SetTextMapPropagator(tc)
+</code></pre>
+<p>В сервисе A, контекст которого мы хотим передать:</p>
+<pre><code class="hljs language-go"><span class="hljs-comment">// GetTextMapPropagator returns the global TextMapPropagator.</span>
+prop := otel.GetTextMapPropagator()
+<span class="hljs-comment">// HeaderCarrier adapts http.Header to satisfy the TextMapCarrier interface.</span>
+headers := <span class="hljs-built_in">make</span>(propagation.HeaderCarrier)
+prop.Inject(ctx, headers)
+</code></pre>
+<p>после этого мы должны каким-то образом передать эти заголовки, в теле запроса, в заголовках запроса, все зависит от вашей реализации.</p>
+<p>В сервисе B, в котором мы хотим получить контекст:</p>
+<pre><code class="hljs language-go"><span class="hljs-keyword">var</span> headers propagation.HeaderCarrier
+<span class="hljs-comment">// we get the headers and convert them to HeaderCarrier...</span>
+prop := otel.GetTextMapPropagator()
+<span class="hljs-comment">// Extract reads cross-cutting concerns from the carrier into a Context.</span>
+ctx = prop.Extract(ctx, headers)
+</code></pre>
+<h3>NATS</h3>
+<pre><code class="hljs language-go"><span class="hljs-comment">// Simple Async Subscriber</span>
+nc.Subscribe(<span class="hljs-string">"foo"</span>, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(m *nats.Msg)</span></span> {
+    fmt.Printf(<span class="hljs-string">"Received a message: %s\n"</span>, <span class="hljs-type">string</span>(m.Data))
+})
+
+<span class="hljs-comment">// Header represents the optional Header for a NATS message,</span>
+<span class="hljs-comment">// based on the implementation of http.Header.</span>
+<span class="hljs-keyword">type</span> Header <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>][]<span class="hljs-type">string</span>
+
+<span class="hljs-comment">// Msg represents a message delivered by NATS. This structure is used</span>
+<span class="hljs-comment">// by Subscribers and PublishMsg().</span>
+<span class="hljs-keyword">type</span> Msg <span class="hljs-keyword">struct</span> {
+	Header  Header
+}
+</code></pre>
+<p>нетрудно заметить что <code>propagation.HeaderCarrier</code> и <code>nats.Header</code> основан на реализации <code>http.Header</code>. Поэтому, чтобы скопировать данные из одной структуры в другую, я воспользовался реализацией <a href="https://cs.opensource.google/go/go/+/refs/tags/go1.19.4:src/net/http/header.go;l=94" rel="noopener ugc nofollow" target="_blank">http.Header.Clone()</a></p>
+<h1>В заключении</h1>
+<p>Всё достаточно просто, если немного почитать документацию. Было очень сложно подобрать русские термины, под устоявшиеся английские определения, поэтому большую часть я просто не стал переводить, что бы не ввести вас в заблуждение.</p>
+<p>Полный код проекта доступен в моем репозитории - <a href="https://github.com/Garik-/nats-tracing" rel="noopener ugc nofollow" target="_blank">nats-tracing</a>.</p>
+<p>Так же при написании гайда я использовал открытые источники:</p>
+<ul>
+<li><a href="https://opentelemetry.io/docs/concepts/signals/traces/" rel="noopener ugc nofollow" target="_blank">https://opentelemetry.io/docs/concepts/signals/traces/</a></li>
+<li><a href="https://aws.amazon.com/ru/what-is/eda/" rel="noopener ugc nofollow" target="_blank">https://aws.amazon.com/ru/what-is/eda/</a></li>
+<li><a href="https://www.amazon.com/Cloud-Native-Go-Unreliable-Environments/dp/1492076333/ref=sr_1_1?dchild=1&#x26;keywords=Cloud+Native+Go&#x26;qid=1629725260&#x26;s=books&#x26;sr=1-1" rel="noopener ugc nofollow" target="_blank">Matthew Titmus “Cloud Native Go: Building Reliable Services in Unreliable Environments”</a></li>
+</ul></div></article><div class="post-tags"><div class="topics-list"><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/golang.html"><div class="topic-item-text">Golang</div></a></div><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/devops.html"><div class="topic-item-text">DevOps</div></a></div><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/observability.html"><div class="topic-item-text">Observability</div></a></div></div></div></div></main><footer class="article-footer"><div class="container"><div class="content"><div class="space"></div><section class="author-section"><a class="author-section-left" rel="noopener follow" href="/"><div class="avatar-box"><img class="avatar mobile-hide" alt="Igor Riakhovskii" src="/v1/resize:fill:96:96/public/avatar.jpg" width="48" height="48" loading="lazy"><div class="avatar-shadow mobile-hide"></div><img class="avatar-big mobile-only" alt="Igor Riakhovskii" src="/v1/resize:fill:128:128/public/avatar.jpg" width="64" height="64" loading="lazy"><div class="avatar-big-shadow mobile-only"></div></div></a><div><a class="author-name" rel="noopener follow" href="/">Written by Igor Riakhovskii</a><div class="author-summary">In commercial development since 2005. At the moment, I am engaged in product development of cloud systems in the role of Technical Lead</div></div></section></div></div></footer></body></html>
