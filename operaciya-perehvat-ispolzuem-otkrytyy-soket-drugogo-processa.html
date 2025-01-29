@@ -1,0 +1,270 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1"><meta name="robots" content="index,noarchive,follow,max-image-preview:large"><meta name="referrer" content="unsafe-url"><link rel="stylesheet" href="/stylesheets/style.d0b9e4490a.css"><link rel="icon" href="/images/favicon.ico"><link rel="apple-touch-icon" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><script src="/javascripts/counter.js" async></script><title>Операция “перехват”. Используем открытый сокет другого процесса | by Igor Riakhovskii</title><meta name="title" content="Операция “перехват”. Используем открытый сокет другого процесса | by Igor Riakhovskii"><meta name="description" content="Меня всегда интересовало, а можно ли похитить сокет другой программы и использовать его в своих целях? Еще как можно!
+"><meta property="og:title" content="Операция “перехват”. Используем открытый сокет другого процесса"><meta property="og:description" content="Меня всегда интересовало, а можно ли похитить сокет другой программы и использовать его в своих целях? Еще как можно!
+"><meta property="og:url" content="https://gariktalksabout.tech/operaciya-perehvat-ispolzuem-otkrytyy-soket-drugogo-processa.html"><meta property="og:site_name" content="Igor Riakhovskii"><meta property="og:type" content="article"><meta property="article:published_time" content="2009-05-31T19:15:00+04:00"><meta property="article:modified_time" content="2025-01-29T18:55:22+03:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><meta property="article:tag" content="Research"><link rel="author" href="https://gariktalksabout.tech/"><link rel="canonical" href="https://gariktalksabout.tech/operaciya-perehvat-ispolzuem-otkrytyy-soket-drugogo-processa.html"><script type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://gariktalksabout.tech/operaciya-perehvat-ispolzuem-otkrytyy-soket-drugogo-processa.html","dateCreated":"2009-05-31T19:15:00+04:00","datePublished":"2009-05-31T19:15:00+04:00","dateModified":"2025-01-29T18:55:22+03:00","headline":"Операция “перехват”. Используем открытый сокет другого процесса","name":"Операция “перехват”. Используем открытый сокет другого процесса","description":"Меня всегда интересовало, а можно ли похитить сокет другой программы и использовать его в своих целях? Еще как можно!\n","identifier":74555221,"author":{"@type":"Person","name":"Igor Riakhovskii","url":"https://gariktalksabout.tech/"},"creator":["Igor Riakhovskii"],"mainEntityOfPage":"https://gariktalksabout.tech/operaciya-perehvat-ispolzuem-otkrytyy-soket-drugogo-processa.html"}</script><script src="/javascripts/header.js" defer></script></head><body><header class="header-panel"><div class="header-panel-wrap"><a class="header-panel-logo" href="/" rel="noopener follow">IR</a></div></header><main class="article-layout"><div class="container"><article><h1 class="post-title">Операция “перехват”. Используем открытый сокет другого процесса</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>5 min read</span><span class="separator">·</span><span>May 31, 2009</span></div></div></section><div class="post-content"><p>Меня всегда интересовало, а можно ли похитить сокет другой программы и использовать его в своих целях? Еще как можно!</p>
+<p>Обход фаервола, установка скрытых соединений, чтение конфиденциальных данных – это лишь немногое, что можно сделать, обладая сокетом.</p>
+<p>Метод перехвата прост и широко обсуждаем в интернете. Нам не потребуется глубоких знаний Windows, потому что все осуществимо из User Mode (ring 3), но для понимания основы знать просто необходимо. RTFM <a href="http://lib.rus.ec/b/133375" rel="noopener ugc nofollow" target="_blank">Джеффри Рихтер “Windows для профессионалов: создание эффективных Win32-приложений с учетом специфики 64-разрядной версии Windows”</a>, глава 3</p>
+<p>Метод заключатся в следующем</p>
+<ol>
+<li>Получить список описателей (хэндлов - handle) открытых нужным процессом</li>
+<li>Найти среди них сокеты</li>
+<li>Скопировать их в свой процесс</li>
+</ol>
+<p>В листинге, представленном ниже, я использовал функцию <strong>ZwQuerySystemInformation</strong> (Native API)</p>
+<pre><code class="hljs language-c">NTSTATUS <span class="hljs-title function_">ZwQuerySystemInformation</span><span class="hljs-params">(
+  SYSTEM_INFORMATION_CLASS SystemInformationClass,
+  PVOID SystemInformation,
+  ULONG SystemInformationLength,
+  PULONG ReturnLength)</span>;
+</code></pre>
+<p>для получения списка открытых описателей, передав ей в качестве первого аргумента SystemHandleInformation</p>
+<p>Для получения типа описателя функцию <strong>NtQueryObject</strong> (Native API)</p>
+<pre><code class="hljs language-c">NTSTATUS <span class="hljs-title function_">NtQueryObject</span><span class="hljs-params">(
+  HANDLE               ObjectHandle,
+  OBJECT_INFORMATION_CLASS ObjectInformationClass,
+  PVOID               ObjectInformation,
+  ULONG                Length,
+  PULONG              ResultLength )</span>;
+</code></pre>
+<p>c параметром ObjectTypeInformation (нам нужны только ‘File’) и с параметром ObjectNameInformation для получения имени описателя (нам нужны сокеты ‘\Device\Afd’). Эти функции находятся в библиотеке ntdll.dll<br>
+Копировать описатель – сокет в наш процесс мы будем функцией <a href="http://vsokovikov.narod.ru/New_MSDN_API/Handles_objects/fn_duplicatehandle.htm" rel="noopener ugc nofollow" target="_blank"><strong>DuplicateHandle</strong></a></p>
+<p><strong>Листинг кода</strong> (VS2008 Win32->Console Project), демонстрирующий описанный выше метод для вывода всех открытых сокетов в системе.</p>
+<pre><code class="hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"stdafx.h"</span></span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">include</span></span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">include</span>  <span class="hljs-comment">// нужный заголовочек с полезными структурами</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span>  <span class="hljs-comment">// структура NTSTATUS</span></span>
+
+<span class="hljs-comment">// подключаем сокеты для использования функций преобразования IP адреса и порта</span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">pragma</span> comment(lib, <span class="hljs-string">"ws2_32.lib"</span>)</span>
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> BUF_SIZE \
+  102400  <span class="hljs-comment">// размер буффера под таблицу информации и имени описателя</span></span>
+
+<span class="hljs-comment">// http://msdn.microsoft.com/en-us/library/aa492492.aspx эх, у меня нет DDK</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> _<span class="hljs-title">POOL_TYPE</span> {</span>
+  NonPagedPool = <span class="hljs-number">0</span>,
+  PagedPool = <span class="hljs-number">1</span>,
+  NonPagedPoolMustSucceed = <span class="hljs-number">2</span>,
+  DontUseThisType = <span class="hljs-number">3</span>,
+  NonPagedPoolCacheAligned = <span class="hljs-number">4</span>,
+  PagedPoolCacheAligned = <span class="hljs-number">5</span>,
+  NonPagedPoolCacheAlignedMustS = <span class="hljs-number">6</span>,
+  MaxPoolType = <span class="hljs-number">7</span>,
+  NonPagedPoolSession = <span class="hljs-number">32</span>,
+  PagedPoolSession = <span class="hljs-number">33</span>,
+  NonPagedPoolMustSucceedSession = <span class="hljs-number">34</span>,
+  DontUseThisTypeSession = <span class="hljs-number">35</span>,
+  NonPagedPoolCacheAlignedSession = <span class="hljs-number">36</span>,
+  PagedPoolCacheAlignedSession = <span class="hljs-number">37</span>,
+  NonPagedPoolCacheAlignedMustSSession = <span class="hljs-number">38</span>
+} POOL_TYPE;
+
+<span class="hljs-comment">// структура необходимая для получения имени описателя -</span>
+<span class="hljs-comment">// NtQueryObject(ObjectNameInformation)</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">OBJECT_NAME_INFORMATION</span> {</span>
+  UNICODE_STRING Name;
+  WCHAR NameBuffer[<span class="hljs-number">0</span>];
+} OBJECT_NAME_INFORMATION, *POBJECT_NAME_INFORMATION;
+
+<span class="hljs-comment">// структура необходимая для получения типа описателя -</span>
+<span class="hljs-comment">// NtQueryObject(ObjectTypeInformation)</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">OBJECT_TYPE_INFORMATION</span> {</span>
+  UNICODE_STRING TypeName;
+  ULONG TotalNumberOfHandles;
+  ULONG TotalNumberOfObjects;
+  WCHAR Unused1[<span class="hljs-number">8</span>];
+  ULONG HighWaterNumberOfHandles;
+  ULONG HighWaterNumberOfObjects;
+  WCHAR Unused2[<span class="hljs-number">8</span>];
+  ACCESS_MASK InvalidAttributes;
+  GENERIC_MAPPING GenericMapping;
+  ACCESS_MASK ValidAttributes;
+  BOOLEAN SecurityRequired;
+  BOOLEAN MaintainHandleCount;
+  USHORT MaintainTypeList;
+  POOL_TYPE PoolType;
+  ULONG DefaultPagedPoolCharge;
+  ULONG DefaultNonPagedPoolCharge;
+} OBJECT_TYPE_INFORMATION, *POBJECT_TYPE_INFORMATION;
+
+<span class="hljs-comment">// используется в NtQueryObject</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> _<span class="hljs-title">OBJECT_INFORMATION_CLASS</span> {</span>
+  ObjectBasicInformation,
+  ObjectNameInformation,
+  ObjectTypeInformation,
+  ObjectAllInformation,
+  ObjectDataInformation
+} OBJECT_INFORMATION_CLASS,
+    *POBJECT_INFORMATION_CLASS;
+
+<span class="hljs-comment">// функции мы будем подключать динамически, поэтому их необохдимо описать :)</span>
+
+<span class="hljs-comment">// ZwQuerySystemInformation</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-title function_">NTSTATUS</span><span class="hljs-params">(CALLBACK *LPFNZwQuerySystemInformation)</span><span class="hljs-params">(
+    SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation,
+    ULONG SystemInformationLength, PULONG ReturnLength)</span>;
+LPFNZwQuerySystemInformation ZwQuerySystemInformation;
+
+<span class="hljs-comment">// NtQueryObject</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-title function_">NTSTATUS</span><span class="hljs-params">(CALLBACK *LPFNNtQueryObject)</span><span class="hljs-params">(
+    HANDLE ObjectHandle, OBJECT_INFORMATION_CLASS ObjectInformationClass,
+    PVOID ObjectInformation, ULONG Length, PULONG ResultLength)</span>;
+LPFNNtQueryObject NtQueryObject;
+
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SystemHandleInformation \
+  16  <span class="hljs-comment">// недокументированый enum SYSTEM_INFORMATION_CLASS</span></span>
+<span class="hljs-comment">// структура используемая в ZwQuerySystemInformation</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">SYSTEM_HANDLE_INFORMATION</span> {</span>
+  USHORT ProcessId;
+  USHORT CreatorBackTraceIndex;
+  UCHAR ObjectTypeNumber;
+  UCHAR Flags;
+  USHORT Handle;
+  PVOID Object;
+  ACCESS_MASK GrantedAccess;
+} SYSTEM_HANDLE_INFORMATION, *PSYSTEM_HANDLE_INFORMATION;
+
+<span class="hljs-comment">// Расширенная структура для получения информации о всех описателях</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">SYSTEM_HANDLE_INFORMATION_EX</span> {</span>
+  ULONG NumberOfHandles;
+  SYSTEM_HANDLE_INFORMATION Information[<span class="hljs-number">1</span>];
+} SYSTEM_HANDLE_INFORMATION_EX, *PSYSTEM_HANDLE_INFORMATION_EX;
+
+<span class="hljs-type">int</span> _tmain(<span class="hljs-type">int</span> argc, _TCHAR *argv[]) {
+  DWORD ret;
+  NTSTATUS ss;
+  PUNICODE_STRING us;
+  POBJECT_TYPE_INFORMATION ot;
+  <span class="hljs-type">int</span> i, ress, rem_port, loc_port;
+  <span class="hljs-type">char</span> *remaddr, *locaddr;
+  sockaddr_in sockname, locname;
+  WSAData WSData;
+
+  HANDLE hProcess, ObjHandle, hh;
+  HINSTANCE hNTdll = LoadLibrary(<span class="hljs-string">L"Ntdll.dll"</span>);
+
+  <span class="hljs-keyword">if</span> (!hNTdll) <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+
+  <span class="hljs-comment">// ищем функции</span>
+  ZwQuerySystemInformation = (LPFNZwQuerySystemInformation)GetProcAddress(
+      hNTdll, <span class="hljs-string">"ZwQuerySystemInformation"</span>);
+
+  NtQueryObject = (LPFNNtQueryObject)GetProcAddress(hNTdll, <span class="hljs-string">"NtQueryObject"</span>);
+
+  WSAStartup(MAKEWORD(<span class="hljs-number">2</span>, <span class="hljs-number">2</span>), &#x26;WSData);  <span class="hljs-comment">// стартуем winsock 2.2</span>
+
+  <span class="hljs-built_in">printf</span>(<span class="hljs-string">"There are the following sockets opened on system:\n"</span>);
+
+  <span class="hljs-comment">// Получение числа описателей в системе</span>
+  DWORD buffer_size = <span class="hljs-number">0</span>;
+  SYSTEM_HANDLE_INFORMATION_EX temp_info;
+
+  ss = ZwQuerySystemInformation(
+      (SYSTEM_INFORMATION_CLASS)SystemHandleInformation, &#x26;temp_info,
+      <span class="hljs-keyword">sizeof</span>(temp_info), &#x26;buffer_size);
+
+  <span class="hljs-comment">// выделяем память под информацию о описателях и</span>
+  SYSTEM_HANDLE_INFORMATION_EX *system_handles =
+      (SYSTEM_HANDLE_INFORMATION_EX *)<span class="hljs-built_in">malloc</span>(
+          buffer_size);  <span class="hljs-comment">// если C++ можно и (new BYTE[buffer_size])</span>
+
+  ss = ZwQuerySystemInformation(
+      (SYSTEM_INFORMATION_CLASS)SystemHandleInformation, system_handles,
+      buffer_size, &#x26;buffer_size);
+
+  <span class="hljs-comment">// выделяем память под сруктурки</span>
+  ot = (POBJECT_TYPE_INFORMATION)<span class="hljs-built_in">malloc</span>(BUF_SIZE);
+  us = (PUNICODE_STRING)<span class="hljs-built_in">malloc</span>(BUF_SIZE);
+
+  <span class="hljs-comment">// информацию о всех описателях мы получили теперь пробежимся по ним...</span>
+  <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; iNumberOfHandles; i++) {
+    <span class="hljs-comment">/*
+    Тут можно вставить проверку на описатели определенного процесса,
+    PID которого можно получить кучей разных способов (см. ссылки в конце
+    статьи)
+    */</span>
+
+    hProcess = OpenProcess(
+        PROCESS_DUP_HANDLE, FALSE,
+        system_handles->Information[i]
+            .ProcessId);  <span class="hljs-comment">// открываем процесс с нужными правами доступа</span>
+    <span class="hljs-keyword">if</span> (hProcess != INVALID_HANDLE_VALUE) {
+      hh = (HANDLE)system_handles->Information[i]
+               .Handle;  <span class="hljs-comment">// у меня были проблемы с преобразованиями - для этого</span>
+                         <span class="hljs-comment">// и завел новую переменную</span>
+
+      <span class="hljs-comment">// теперь копируем описатель в адресное пространство своего процесса</span>
+      <span class="hljs-keyword">if</span> (DuplicateHandle(hProcess, hh, INVALID_HANDLE_VALU E, &#x26;ObjHandle,
+                          DUPLICATE_SAME_ACCESS, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>)) {
+        <span class="hljs-comment">// вытаскиваем информацию о типе описателя</span>
+        ss =
+            NtQueryObject(ObjHandle, ObjectTypeInformation, ot, BUF_SIZE, &#x26;ret);
+        <span class="hljs-keyword">if</span> (ss == STATUS_SUCCESS) {
+          <span class="hljs-comment">// кстати таким образом можно перехватывать любые обьекты ядра заданые</span>
+          <span class="hljs-comment">// в таблице описателей процесса,</span>
+          <span class="hljs-keyword">if</span> (lstrcmp(ot->TypeName.Buffer, <span class="hljs-string">L"File"</span>) ==
+              <span class="hljs-number">0</span>) {  <span class="hljs-comment">// но нам нужен только File</span>
+            <span class="hljs-comment">// вытаскиваем информацию о имени описателя</span>
+            ss = NtQueryObject(ObjHandle, ObjectNameInformation, us, BUF_SIZE,
+                               &#x26;ret);
+            <span class="hljs-keyword">if</span> (ss == STATUS_SUCCESS) {
+              <span class="hljs-keyword">if</span> (lstrcmp(us->Buffer, <span class="hljs-string">L"\\Device\\Afd"</span>) ==
+                  <span class="hljs-number">0</span>) {  <span class="hljs-comment">// если это сокет</span>
+
+                <span class="hljs-comment">/*
+                <mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark>==
+                <mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark>=== Вот впринципе и все! мы нашли
+                сокет и он уже находится во власти нашего процесса теперь мы
+                можем делать с ним все, что захотим! ;) а я хочу вывысти
+                информацию о нем и о том кому он пренадлежит.
+                <mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark>==
+                <mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark><mark></mark>===
+                */</span>
+
+                ress = <span class="hljs-keyword">sizeof</span>(sockaddr_in);  <span class="hljs-comment">//--- commenting this line would</span>
+                                             <span class="hljs-comment">//cause an 10014 error.</span>
+                getpeername((SOCKET)ObjHandle, (sockaddr *)&#x26;sockname, &#x26;ress);
+
+                <span class="hljs-comment">//--- определяем локальный IP и порт</span>
+                ress = <span class="hljs-keyword">sizeof</span>(sockaddr_in);  <span class="hljs-comment">//--- commenting this line would</span>
+                                             <span class="hljs-comment">//cause an 10014 error.</span>
+                getsockname((SOCKET)ObjHandle, (sockaddr *)&#x26;locname, &#x26;ress);
+
+                <span class="hljs-comment">//--- коевертируем в понятные для глаза данные )</span>
+                remaddr = inet_ntoa(sockname.sin_addr);
+                rem_port = ntohs(sockname.sin_port);
+
+                locaddr = inet_ntoa(locname.sin_addr);
+                loc_port = ntohs(locname.sin_port);
+
+                <span class="hljs-comment">// выводим информацию</span>
+                wprintf(<span class="hljs-string">L"PID=%d; Local=%S:%d; Peer=%S:%d;\n"</span>,
+                        system_handles->Information[i].ProcessId, locaddr,
+                        loc_port, remaddr, rem_port);
+              }
+            }  <span class="hljs-comment">// --- name handle</span>
+          }
+        }  <span class="hljs-comment">// --- type handle</span>
+
+      }  <span class="hljs-comment">// -- duplicate handle</span>
+      CloseHandle(hProcess);
+    }
+  }  <span class="hljs-comment">// --- for</span>
+
+  <span class="hljs-comment">// освобождаем память</span>
+  <span class="hljs-built_in">free</span>(ot);
+  <span class="hljs-built_in">free</span>(us);
+  <span class="hljs-built_in">free</span>(system_handles);
+
+  WSACleanup();         <span class="hljs-comment">// отключаемс сокеты</span>
+  FreeLibrary(hNTdll);  <span class="hljs-comment">// и выгружаем DLL</span>
+
+  getchar();  <span class="hljs-comment">// а это так для паузы )</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+<p><strong>Полезные ссылки</strong><br>
+<a href="http://www.wasm.ru/article.php?article=hiddndt" rel="noopener ugc nofollow" target="_blank">Множество примеров использования Tool Help и ZwQuerySystemInformation</a><br>
+<a href="http://undocumented.ntinternals.net/" rel="noopener ugc nofollow" target="_blank">Недокументированные функции Windows NT/2K/XP/2003</a></p></div></article><div class="post-tags"><div class="topics-list"><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/research.html"><div class="topic-item-text">Research</div></a></div></div></div></div></main><footer class="article-footer"><div class="container"><div class="content"><div class="space"></div><section class="author-section"><a class="author-section-left" rel="noopener follow" href="/"><div class="avatar-box"><img class="avatar mobile-hide" alt="Igor Riakhovskii" src="/v1/resize:fill:96:96/public/avatar.jpg" width="48" height="48" loading="lazy"><div class="avatar-shadow mobile-hide"></div><img class="avatar-big mobile-only" alt="Igor Riakhovskii" src="/v1/resize:fill:128:128/public/avatar.jpg" width="64" height="64" loading="lazy"><div class="avatar-big-shadow mobile-only"></div></div></a><div><a class="author-name" rel="noopener follow" href="/">Written by Igor Riakhovskii</a><div class="author-summary">In commercial development since 2005. At the moment, I am engaged in product development of cloud systems in the role of Technical Lead</div></div></section></div></div></footer></body></html>
