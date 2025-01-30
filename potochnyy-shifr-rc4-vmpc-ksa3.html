@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1"><meta name="robots" content="index,noarchive,follow,max-image-preview:large"><meta name="referrer" content="unsafe-url"><link rel="stylesheet" href="/stylesheets/style.d0b9e4490a.css"><link rel="icon" href="/images/favicon.ico"><link rel="apple-touch-icon" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><script src="/javascripts/counter.js" async></script><title>Поточный шифр RC4, VMPC KSA3 | by Igor Riakhovskii</title><meta name="title" content="Поточный шифр RC4, VMPC KSA3 | by Igor Riakhovskii"><meta name="description" content="RC4 выдрано из rpcrt4.dll
+"><meta property="og:title" content="Поточный шифр RC4, VMPC KSA3"><meta property="og:description" content="RC4 выдрано из rpcrt4.dll
+"><meta property="og:url" content="https://gariktalksabout.tech/potochnyy-shifr-rc4-vmpc-ksa3.html"><meta property="og:site_name" content="Igor Riakhovskii"><meta property="og:type" content="article"><meta property="article:published_time" content="2010-04-27T00:00:00+04:00"><meta property="article:modified_time" content="2010-04-27T00:00:00+04:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><meta property="article:tag" content="Research"><link rel="author" href="https://gariktalksabout.tech/"><link rel="canonical" href="https://gariktalksabout.tech/potochnyy-shifr-rc4-vmpc-ksa3.html"><script type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://gariktalksabout.tech/potochnyy-shifr-rc4-vmpc-ksa3.html","dateCreated":"2010-04-27T00:00:00+04:00","datePublished":"2010-04-27T00:00:00+04:00","dateModified":"2010-04-27T00:00:00+04:00","headline":"Поточный шифр RC4, VMPC KSA3","name":"Поточный шифр RC4, VMPC KSA3","description":"RC4 выдрано из rpcrt4.dll\n","identifier":74761369,"author":{"@type":"Person","name":"Igor Riakhovskii","url":"https://gariktalksabout.tech/"},"creator":["Igor Riakhovskii"],"mainEntityOfPage":"https://gariktalksabout.tech/potochnyy-shifr-rc4-vmpc-ksa3.html"}</script><script src="/javascripts/header.js" defer></script></head><body><header class="header-panel"><div class="header-panel-wrap"><a class="header-panel-logo" href="/" rel="noopener follow">IR</a></div></header><main class="article-layout"><div class="container"><article><h1 class="post-title">Поточный шифр RC4, VMPC KSA3</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>3 min read</span><span class="separator">·</span><span>Apr 27, 2010</span></div></div></section><div class="post-content"><p>RC4 <a href="http://www.rsdn.ru/article/Crypto/UuidCrypto.xml?print" rel="noopener ugc nofollow" target="_blank">выдрано из rpcrt4.dll</a><br>
+VMPC немного переделанный <a href="http://darksoftware.narod.ru/narod_is_best/vmpcksa3.zip" rel="noopener ugc nofollow" target="_blank">исходник</a></p>
+<pre><code class="hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> pack(1)</span>
+<span class="hljs-comment">// Состояние экземпляра RC4</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">RC4_INSTANCE_STATE</span> {</span>
+  BYTE SBOX[<span class="hljs-number">256</span>];  <span class="hljs-comment">// S-блок</span>
+  <span class="hljs-type">int</span> i;           <span class="hljs-comment">// Регистр RC4</span>
+  <span class="hljs-type">int</span> j;           <span class="hljs-comment">// Регистр RC4</span>
+} RC4_INSTANCE_STATE, *PRC4_INSTANCE_STATE;
+
+<span class="hljs-keyword">typedef</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> u8;
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">VMPC_STATE</span> {</span>
+  u8 P[<span class="hljs-number">256</span>];
+  u8 n;
+  u8 s;
+} VMPC_STATE, *PVMPC_STATE;
+<span class="hljs-meta">#<span class="hljs-keyword">pragma</span> pack()</span>
+
+<span class="hljs-comment">// RC4 Key Scheduling Algorithm (KSA)</span>
+<span class="hljs-type">void</span> <span class="hljs-title function_">rc4_key</span><span class="hljs-params">(PRC4_INSTANCE_STATE pRC4State, DWORD cbData, BYTE* pbData)</span> {
+  BYTE t = <span class="hljs-number">0</span>;
+
+  <span class="hljs-keyword">for</span> (pRC4State->i = <span class="hljs-number">0</span>; pRC4State->i &#x3C; <span class="hljs-number">256</span>; pRC4State->i++)
+    pRC4State->SBOX[pRC4State->i] = pRC4State->i;
+
+  pRC4State->j = <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">for</span> (pRC4State->i = <span class="hljs-number">0</span>; pRC4State->i &#x3C; <span class="hljs-number">256</span>; pRC4State->i++) {
+    pRC4State->j = (pRC4State->j + pRC4State->SBOX[pRC4State->i] +
+                    (*(pbData + pRC4State->i))) &#x26;
+                   <span class="hljs-number">0x0FF</span>;
+  };
+
+  t = pRC4State->SBOX[pRC4State->i];
+  pRC4State->SBOX[pRC4State->i] = pRC4State->SBOX[pRC4State->j];
+  pRC4State->SBOX[pRC4State->j] = t;
+};
+
+<span class="hljs-comment">// Классическая реализация алгоритма RC4</span>
+<span class="hljs-type">void</span> <span class="hljs-title function_">rc4</span><span class="hljs-params">(PRC4_INSTANCE_STATE pRC4State, DWORD cbData, BYTE* pbData)</span> {
+  BYTE t = <span class="hljs-number">0</span>;
+
+  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> p = <span class="hljs-number">0</span>; p &#x3C; cbData; p++) {
+    pRC4State->i = (pRC4State->i + <span class="hljs-number">1</span>) &#x26; <span class="hljs-number">0x0FF</span>;
+    pRC4State->j = (pRC4State->j + pRC4State->SBOX[pRC4State->i]) &#x26; <span class="hljs-number">0x0FF</span>;
+    t = pRC4State->SBOX[pRC4State->i];
+    pRC4State->SBOX[pRC4State->i] = pRC4State->SBOX[pRC4State->j];
+    pRC4State->SBOX[pRC4State->j] = t;
+    *(pbData + p) =
+        *(pbData + p) ^ pRC4State->SBOX[(pRC4State->SBOX[pRC4State->i] +
+                                         pRC4State->SBOX[pRC4State->j]) &#x26;
+                                        <span class="hljs-number">0xFF</span>];
+  }
+}
+
+<span class="hljs-type">void</span> <span class="hljs-title function_">VMPC_init</span><span class="hljs-params">(PVMPC_STATE pVMPC, u8* key, u8* iv)</span> {
+  <span class="hljs-type">long</span> m, i;
+  u8 temp;
+  pVMPC->s = <span class="hljs-number">0</span>;
+
+  <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i != <span class="hljs-number">256</span>; i++) {
+    pVMPC->P[i] = (u8)i;
+  }
+
+  <span class="hljs-keyword">for</span> (m = <span class="hljs-number">0</span>; m != <span class="hljs-number">768</span>; m++) {
+    pVMPC->s = pVMPC->P[(pVMPC->s + pVMPC->P[m &#x26; <span class="hljs-number">0xff</span>] + key[m % <span class="hljs-number">64</span>]) &#x26; <span class="hljs-number">0xff</span>];
+    temp = pVMPC->P[m &#x26; <span class="hljs-number">0xff</span>];
+    pVMPC->P[m &#x26; <span class="hljs-number">0xff</span>] = pVMPC->P[pVMPC->s &#x26; <span class="hljs-number">0xff</span>];
+    pVMPC->P[pVMPC->s &#x26; <span class="hljs-number">0xff</span>] = temp;
+  }
+
+  <span class="hljs-keyword">for</span> (m = <span class="hljs-number">0</span>; m &#x3C; <span class="hljs-number">768</span>; m++) {
+    pVMPC->s = pVMPC->P[(pVMPC->s + pVMPC->P[m &#x26; <span class="hljs-number">0xff</span>] + iv[m % <span class="hljs-number">64</span>]) &#x26; <span class="hljs-number">0xff</span>];
+    temp = pVMPC->P[m &#x26; <span class="hljs-number">0xff</span>];
+    pVMPC->P[m &#x26; <span class="hljs-number">0xff</span>] = pVMPC->P[pVMPC->s &#x26; <span class="hljs-number">0xff</span>];
+    pVMPC->P[pVMPC->s &#x26; <span class="hljs-number">0xff</span>] = temp;
+  }
+
+  <span class="hljs-keyword">for</span> (m = <span class="hljs-number">0</span>; m != <span class="hljs-number">768</span>; m++) {
+    pVMPC->s = pVMPC->P[(pVMPC->s + pVMPC->P[m &#x26; <span class="hljs-number">0xff</span>] + key[m % <span class="hljs-number">64</span>]) &#x26; <span class="hljs-number">0xff</span>];
+    temp = pVMPC->P[m &#x26; <span class="hljs-number">0xff</span>];
+    pVMPC->P[m &#x26; <span class="hljs-number">0xff</span>] = pVMPC->P[pVMPC->s &#x26; <span class="hljs-number">0xff</span>];
+    pVMPC->P[pVMPC->s &#x26; <span class="hljs-number">0xff</span>] = temp;
+  }
+
+  pVMPC->n = <span class="hljs-number">0</span>;
+}
+
+<span class="hljs-type">void</span> <span class="hljs-title function_">VMPC_crypt</span><span class="hljs-params">(PVMPC_STATE pVMPC, u8* input, u8* output, <span class="hljs-type">long</span> len)</span> {
+  <span class="hljs-type">long</span> i;
+  u8 z, temp;
+  <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i != len; i++) {
+    pVMPC->s = pVMPC->P[(pVMPC->s + pVMPC->P[pVMPC->n &#x26; <span class="hljs-number">0xff</span>]) &#x26; <span class="hljs-number">0xff</span>];
+    z = pVMPC->P[(pVMPC->P[(pVMPC->P[pVMPC->s &#x26; <span class="hljs-number">0xff</span>]) &#x26; <span class="hljs-number">0xff</span>] + <span class="hljs-number">1</span>) &#x26; <span class="hljs-number">0xff</span>];
+    temp = pVMPC->P[pVMPC->n &#x26; <span class="hljs-number">0xff</span>];
+    pVMPC->P[pVMPC->n &#x26; <span class="hljs-number">0xff</span>] = pVMPC->P[pVMPC->s &#x26; <span class="hljs-number">0xff</span>];
+    pVMPC->P[pVMPC->s &#x26; <span class="hljs-number">0xff</span>] = temp;
+    pVMPC->n = (u8)((pVMPC->n + <span class="hljs-number">1</span>) &#x26; <span class="hljs-number">0xff</span>);
+    output[i] = (u8)(input[i] ^ z);
+  }
+}
+
+</code></pre>
+<p>Примерчик</p>
+<pre><code class="hljs language-c">BOOL(__stdcall *SystemFunction036)
+(PVOID RandomBuffer, ULONG RandomBufferLength);
+
+<span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span> {
+  <span class="hljs-type">char</span> text[] = <span class="hljs-string">"garik"</span>;
+  RC4_INSTANCE_STATE rc4_st;
+  BYTE key[<span class="hljs-number">256</span>];
+
+  <span class="hljs-comment">// генерим рандомный ключ в 2048 бит  8)</span>
+  <span class="hljs-comment">// [url]http://msdn.microsoft.com/en-us/library/aa387694(VS.85).aspx[/url] ==</span>
+  <span class="hljs-comment">// RtlGenRandom</span>
+  SystemFunction036 = (BOOL(__stdcall *)(PVOID, ULONG))GetProcAddress(
+      GetModuleHandle(<span class="hljs-string">"Advapi32.dll"</span>), <span class="hljs-string">"SystemFunction036"</span>);
+  SystemFunction036(key, <span class="hljs-number">256</span>);
+
+  <span class="hljs-comment">// инициализируем RC4</span>
+  rc4_key(&#x26;rc4_st, <span class="hljs-number">256</span>, key);
+
+  <span class="hljs-comment">// шифруем</span>
+  rc4(&#x26;rc4_st, <span class="hljs-number">5</span>, (BYTE *)text);
+
+  <span class="hljs-comment">// SBOX то изменился поэтому инициализируем снова</span>
+  rc4_key(&#x26;rc4_st, <span class="hljs-number">256</span>, key);
+
+  <span class="hljs-comment">// расшифровываем</span>
+  rc4(&#x26;rc4_st, <span class="hljs-number">5</span>, (BYTE *)text);
+
+  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre></div></article><div class="post-tags"><div class="topics-list"><div class="topic-item"><a class="topic-item-link" rel="noopener follow" href="/tag/research.html"><div class="topic-item-text">Research</div></a></div></div></div></div></main><footer class="article-footer"><div class="container"><div class="content"><div class="space"></div><section class="author-section"><a class="author-section-left" rel="noopener follow" href="/"><div class="avatar-box"><img class="avatar mobile-hide" alt="Igor Riakhovskii" src="/v1/resize:fill:96:96/public/avatar.jpg" width="48" height="48" loading="lazy"><div class="avatar-shadow mobile-hide"></div><img class="avatar-big mobile-only" alt="Igor Riakhovskii" src="/v1/resize:fill:128:128/public/avatar.jpg" width="64" height="64" loading="lazy"><div class="avatar-big-shadow mobile-only"></div></div></a><div><a class="author-name" rel="noopener follow" href="/">Written by Igor Riakhovskii</a><div class="author-summary">In commercial development since 2005. At the moment, I am engaged in product development of cloud systems in the role of Technical Lead</div></div></section></div></div></footer></body></html>
