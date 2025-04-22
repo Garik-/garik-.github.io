@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1"><meta name="robots" content="index,noarchive,follow,max-image-preview:large"><meta name="referrer" content="unsafe-url"><link rel="stylesheet" href="/stylesheets/style.d0b9e4490a.css"><link rel="icon" href="/images/favicon.ico"><link rel="apple-touch-icon" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><script src="/javascripts/counter.js" async></script><title>Как работают программы | by Igor Riakhovskii</title><meta name="title" content="Как работают программы | by Igor Riakhovskii"><meta name="description" content="Стоит упомянуть классификацию архитектуры компьютеров
 "><meta property="og:title" content="Как работают программы"><meta property="og:description" content="Стоит упомянуть классификацию архитектуры компьютеров
 "><meta property="og:url" content="https://gariktalksabout.tech/kak-rabotayut-programmy.html"><meta property="og:site_name" content="Igor Riakhovskii"><meta property="og:type" content="article"><meta property="og:image" content="https://gariktalksabout.tech/v1/resize:fit:1200/alu.png"><meta property="og:image:width" content="822"><meta property="og:image:height" content="764"><meta property="article:published_time" content="2019-03-31T15:00:00+03:00"><meta property="article:modified_time" content="2019-03-31T15:00:00+03:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><meta property="article:tag" content="Talk"><link rel="author" href="https://gariktalksabout.tech/"><link rel="canonical" href="https://gariktalksabout.tech/kak-rabotayut-programmy.html"><script type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://gariktalksabout.tech/kak-rabotayut-programmy.html","dateCreated":"2019-03-31T15:00:00+03:00","datePublished":"2019-03-31T15:00:00+03:00","dateModified":"2019-03-31T15:00:00+03:00","headline":"Как работают программы","name":"Как работают программы","description":"Стоит упомянуть классификацию архитектуры компьютеров\n","identifier":72223157,"author":{"@type":"Person","name":"Igor Riakhovskii","url":"https://gariktalksabout.tech/"},"creator":["Igor Riakhovskii"],"mainEntityOfPage":"https://gariktalksabout.tech/kak-rabotayut-programmy.html","image":["https://gariktalksabout.tech/v1/resize:fit:1200/alu.png"]}</script><script src="/javascripts/header.js" defer></script></head><body><header class="header-panel"><div class="header-panel-wrap"><a class="header-panel-logo" href="/" rel="noopener follow">IR</a></div></header><main class="article-layout"><div class="container"><article><h1 class="post-title">Как работают программы</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>12 min read</span><span class="separator">·</span><span>Mar 31, 2019</span></div></div></section><div class="post-content"><p>Стоит упомянуть классификацию архитектуры компьютеров</p>
-<h2>По типу применяемого процессора</h2>
+<h2 id="по-типу-применяемого-процессора">По типу применяемого процессора</h2>
 <ul>
 <li>
 <p><a href="https://ru.wikipedia.org/wiki/CISC" rel="noopener ugc nofollow" target="_blank">CISC</a> (англ. complex instruction set computing) - архитектура с полным набором команд. Такие процессоры выполняют все команды, простые и сложные, за большое количество тактов. Команд в таких процессорах много, и бывает, что компиляторы верхнего уровня очень редко используют все команды.</p>
@@ -13,7 +13,7 @@
 <p><a href="https://ru.wikipedia.org/wiki/MISC" rel="noopener ugc nofollow" target="_blank">MISC</a> (англ. minimal instruction set computing) - архитектура с минимальным набором команд. Такие процессоры имеют минимальное количество команд, все команды простые и требуют небольшого количества тактов на выполнение, но если выполняются сложные вычисления, например с числами с плавающей запятой, то такие команды выполняются за большое количество тактов, превышающее <a href="https://ru.wikipedia.org/wiki/CISC" rel="noopener ugc nofollow" target="_blank">CISC</a> и <a href="https://ru.wikipedia.org/wiki/RISC" rel="noopener ugc nofollow" target="_blank">RISC</a> архитектуры.</p>
 </li>
 </ul>
-<h2>По принципу разделения памяти</h2>
+<h2 id="по-принципу-разделения-памяти">По принципу разделения памяти</h2>
 <ul>
 <li><a href="https://ru.wikipedia.org/wiki/%D0%93%D0%B0%D1%80%D0%B2%D0%B0%D1%80%D0%B4%D1%81%D0%BA%D0%B0%D1%8F_%D0%B0%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0" rel="noopener ugc nofollow" target="_blank">Гарвардская архитектура</a> - характерной чертой является разделение памяти программ и памяти данных</li>
 <li><a href="https://ru.wikipedia.org/wiki/%D0%90%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0_%D1%84%D0%BE%D0%BD_%D0%9D%D0%B5%D0%B9%D0%BC%D0%B0%D0%BD%D0%B0" rel="noopener ugc nofollow" target="_blank">Фон Неймановская архитектура</a> - характерной чертой является совместное хранение программ и данных</li>
@@ -21,9 +21,9 @@
 <p>Системы команд и микропроцессорных архитектур:</p>
 <p> x86, MIPS, SPARC, PowerPC </p>
 <p>В дальнейшем мы рассмотрим более популярную архитектуру x86 это по типу применяемого процессора это CISC а по типу разделения памяти гарвардская архитектура</p>
-<h1>Из чего вообще состоит процессор, цифровые логические узлы</h1>
+<h1 id="из-чего-вообще-состоит-процессор-цифровые-логические-узлы">Из чего вообще состоит процессор, цифровые логические узлы</h1>
 <p>Вообще этих узлов много мы создадим и рассмотрим простейшую архитектуру основанной на гарвардской архитектуре разделения памяти</p>
-<h2>Алу, матрицы памяти (ROM, RAM), регистры и генератор тактовых сигналов</h2>
+<h2 id="алу-матрицы-памяти-rom-ram-регистры-и-генератор-тактовых-сигналов">Алу, матрицы памяти (ROM, RAM), регистры и генератор тактовых сигналов</h2>
 <p>Арифметико-логическое устройство (АЛУ, Arithmetic/Logical Unit (ALU) объединяет различные арифметические и логические операции в одном узле. Например, типичное АЛУ может выполнять сложение, вычитание, сравнение величин, операции «И» и «ИЛИ». АЛУ входит в ядро большинства компьютерных систем.</p>
 
   <figure>
@@ -36,7 +36,7 @@
   </figure>
   
 <p>В АЛУ поступает управляющий сигнал F, который определяет, какую функцию нужно выполнить. </p>
-<h2>Регистры</h2>
+<h2 id="регистры">Регистры</h2>
 <p>Подавляющее большинство современных коммерческих систем построено на регистрах, использующих срабатывающие по переднему фронту тактового импульса D-триггеры.</p>
 
   <figure>
@@ -48,7 +48,7 @@
     
   </figure>
   
-<h2>Матрицы памяти</h2>
+<h2 id="матрицы-памяти">Матрицы памяти</h2>
 <p>Матрица памяти грубо говоря это сетка объединенных между собой регистров</p>
 <p>Разделяют:</p>
 <ul>
@@ -80,7 +80,7 @@
 <p>Запоминающие устройства делятся на два больших класса оперативные запоминающие устройства (ОЗУ) (RAM, память с произвольным доступом) и постоянные запоминающие устройства (ПЗУ) (ROM, память только для чтения). ОЗУ является энергозависимым, то есть, при отключении питания информация, которая хранилась в ОЗУ, утрачивается. ПЗУ энергонезависимо, оно сохраняет свои данные даже при отсутствии питания. </p>
 <p>В настоящее время ситуация не совсем такая. В ROM  тоже можно записывать - называется это “прошивка”</p>
 <p>Главное отличие, на которое следует обратить внимание, состоит в том, что ОЗУ энергозависимо, а ПЗУ энергонезависимо.</p>
-<h1>Язык ассемблера, архитектура 8086 -> x86</h1>
+<h1 id="язык-ассемблера-архитектура-8086---x86">Язык ассемблера, архитектура 8086 -> x86</h1>
 <p>Язык ассемблера – это удобное для восприятия человеком представление родного языка компьютера. Каждая инструкция языка ассемблера задаёт операцию, которую необходимо выполнить, а также операнды, которые будут использованы во время выполнения. </p>
 <p><a href="https://ru.wikibooks.org/wiki/%D0%90%D1%81%D1%81%D0%B5%D0%BC%D0%B1%D0%BB%D0%B5%D1%80_%D0%B2_Linux_%D0%B4%D0%BB%D1%8F_%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%81%D1%82%D0%BE%D0%B2_C" rel="noopener ugc nofollow" target="_blank">Ассемблер в Linux для программистов C</a></p>
 <p><a href="https://ru.wikipedia.org/wiki/%D0%A0%D0%B5%D0%B3%D0%B8%D1%81%D1%82%D1%80_%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%81%D0%BE%D1%80%D0%B0" rel="noopener ugc nofollow" target="_blank">Регистр</a> — это небольшой объем очень быстрой памяти, размещённой на процессоре. Он предназначен для хранения результатов промежуточных вычислений, а также некоторой информации для управления работой процессора. Так как регистры размещены непосредственно на процессоре, доступ к данным, хранящимся в них, намного быстрее доступа к данным в <a href="https://ru.wikipedia.org/wiki/%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D0%B0%D1%8F_%D0%BF%D0%B0%D0%BC%D1%8F%D1%82%D1%8C" rel="noopener ugc nofollow" target="_blank">оперативной памяти</a>.</p>
@@ -127,7 +127,7 @@
 <li><code>%fs</code>: F segment — дополнительный сегментный регистр без специального назначения.</li>
 <li><code>%gs</code>: G segment — дополнительный сегментный регистр без специального назначения.</li>
 </ul>
-<h2>Стек</h2>
+<h2 id="стек">Стек</h2>
 <p>Мы полагаем, что читатель имеет опыт программирования на Си и знаком со структурами данных типа <a href="https://ru.wikipedia.org/wiki/%D0%A1%D1%82%D0%B5%D0%BA" rel="noopener ugc nofollow" target="_blank">стек</a>. В микропроцессоре стек работает похожим образом: это область памяти, у которой определена вершина (на неё указывает <code>%esp</code>). Поместить новый элемент можно только на вершину стека, при этом новый элемент становится вершиной. Достать из стека можно только верхний элемент, при этом вершиной становится следующий элемент. У вас наверняка была в детстве игрушка-пирамидка, где нужно было разноцветные кольца надевать на общий стержень. Так вот, эта пирамидка — отличный пример стека. Также можно провести аналогию с составленными стопкой тарелками. На разных архитектурах стек может "расти" как в сторону младших адресов (принцип описан ниже, подходит для x86), так и старших.</p>
 <pre><code>Содержимое стека  Адреса в памяти
 .                .
@@ -192,9 +192,9 @@
 |      данные     |
 +-----------------+ 0x00010000 &#x3C;-- дно стека
 </code></pre>
-<h2>Циклы команда loop</h2>
+<h2 id="циклы-команда-loop">Циклы команда loop</h2>
 <p>Для организации цикла предназначена команда <a href="http://asmworld.ru/spravochnik-komand/loop" rel="noopener ugc nofollow" target="_blank">LOOP</a>. У этой команды один операнд — имя метки, на которую осуществляется переход. В качестве счётчика цикла используется регистр CX. Команда <a href="http://asmworld.ru/spravochnik-komand/loop" rel="noopener ugc nofollow" target="_blank">LOOP</a>выполняет декремент CX, а затем проверяет его значение. Если содержимое CX не равно нулю, то осуществляется переход на метку, иначе управление переходит к следующей после <a href="http://asmworld.ru/spravochnik-komand/loop" rel="noopener ugc nofollow" target="_blank">LOOP</a> команде.</p>
-<h2>Условные и безусловные  переходы</h2>
+<h2 id="условные-и-безусловные-переходы">Условные и безусловные  переходы</h2>
 <p>Безусловный переход — это переход, который выполняется всегда. Безусловный переход осуществляется с помощью команды <a href="http://asmworld.ru/spravochnik-komand/jmp" rel="noopener ugc nofollow" target="_blank">JMP</a>. У этой команды один операнд, который может быть непосредственным адресом (меткой), регистром или ячейкой памяти, содержащей адрес. Существуют также «дальние» переходы — между сегментами, однако здесь мы их рассматривать не будем.</p>
 <p>Условный переход осуществляется, если выполняется определённое условие, заданное флагами процессора (кроме одной команды, которая проверяет CX на равенство нулю). Как вы помните, состояние флагов изменяется после выполнения арифметических, логических и некоторых других команд. Если условие не выполняется, то управление переходит к следующей команде.</p>
 <p>Существует много команд для различных условных переходов. Также для некоторых команд есть синонимы (например, <a href="http://asmworld.ru/spravochnik-komand/jcond" rel="noopener ugc nofollow" target="_blank">JZ</a> и <a href="http://asmworld.ru/spravochnik-komand/jcond" rel="noopener ugc nofollow" target="_blank">JE</a> — это одно и то же). Для наглядности все команды условных переходов приведены в таблице:</p>
@@ -294,7 +294,7 @@
 </tr>
 </tbody>
 </table>
-<h2>Вызов процедур</h2>
+<h2 id="вызов-процедур">Вызов процедур</h2>
 <p>Для работы с процедурами предназначены команды <a href="http://asmworld.ru/spravochnik-komand/call" rel="noopener ugc nofollow" target="_blank">CALL</a> и <a href="http://asmworld.ru/spravochnik-komand/ret" rel="noopener ugc nofollow" target="_blank">RET</a>. С помощью команды <a href="http://asmworld.ru/spravochnik-komand/call" rel="noopener ugc nofollow" target="_blank">CALL</a> выполняется вызов процедуры. Эта команда работает почти также, как команда безусловного перехода (<a href="http://asmworld.ru/spravochnik-komand/jmp" rel="noopener ugc nofollow" target="_blank">JMP</a>), но с одним отличием — одновременно в стек сохраняется текущее значение регистра IP. Это позволяет потом вернуться к тому месту в коде, откуда была вызвана процедура. В качестве операнда указывается адрес перехода, который может быть непосредственным значением (меткой), 16-разрядным регистром (кроме сегментных) или ячейкой памяти, содержащей адрес.</p>
 <p>Возврат из процедуры выполняется командой <a href="http://asmworld.ru/spravochnik-komand/ret" rel="noopener ugc nofollow" target="_blank">RET</a>. Эта команда восстанавливает значение из вершины стека в регистр IP. Таким образом, выполнение программы продолжается с команды, следующей сразу после команды <a href="http://asmworld.ru/spravochnik-komand/call" rel="noopener ugc nofollow" target="_blank">CALL</a>. Обычно код процедуры заканчивается этой командой.</p>
 <p>Как передавать аргументы в процедуру? конечно же через стек</p>
@@ -302,7 +302,7 @@
 pop ax
 </code></pre>
 <p>но в x86 все немного сложней</p>
-<h3>Правила вызывающей стороны</h3>
+<h3 id="правила-вызывающей-стороны">Правила вызывающей стороны</h3>
 <p>Перед вызовом функции вызывающая сторона должна:</p>
 <ol>
 <li>Сохранить в стек регистры, которые обязан сохранять вызывающий. Вызываемая функция может изменить некоторые регистры: чтобы не потерять данные, вызывающая сторона должна сохранить их в памяти до помещения в стек. Речь идёт о регистрах eax, ecx и edx. Если вы не используете какие-то из них, то их можно не сохранять.</li>
@@ -364,7 +364,7 @@ pop ax
     <figcaption>Архитектура UNIX</figcaption>
   </figure>
   
-<h1>Процессы и потоки</h1>
+<h1 id="процессы-и-потоки">Процессы и потоки</h1>
 <p>Процесс обычно определяют как экземпляр выполняемой программы, и он состоит из двух компонентов:</p>
 <ul>
 <li>объекта ядра, через который операционная система управляет процессом. Там же хранится статистическая информация о процессе;</li>
@@ -384,7 +384,7 @@ pop ax
   </figure>
   
 <p>При создании процесса первый (точнее, первичный) поток создается системой автоматически. Далее этот поток может породить другие потоки, те в свою очередь — новые и т. д.</p>
-<h1>Источники</h1>
+<h1 id="источники">Источники</h1>
 <ul>
 <li><a href="https://habr.com/ru/post/423077/" rel="noopener ugc nofollow" target="_blank">Руководство по ассемблеру x86 для начинающих</a></li>
 <li><a href="https://ru.wikibooks.org/wiki/%D0%90%D1%81%D1%81%D0%B5%D0%BC%D0%B1%D0%BB%D0%B5%D1%80_%D0%B2_Linux_%D0%B4%D0%BB%D1%8F_%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%81%D1%82%D0%BE%D0%B2_C" rel="noopener ugc nofollow" target="_blank">Ассемблер в Linux для программистов C</a></li>

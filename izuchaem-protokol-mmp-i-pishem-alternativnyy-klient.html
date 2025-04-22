@@ -1,8 +1,8 @@
 <!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1"><meta name="robots" content="index,noarchive,follow,max-image-preview:large"><meta name="referrer" content="unsafe-url"><link rel="stylesheet" href="/stylesheets/style.d0b9e4490a.css"><link rel="icon" href="/images/favicon.ico"><link rel="apple-touch-icon" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><script src="/javascripts/counter.js" async></script><title>Изучаем протокол MMP и пишем альтернативный клиент | by Igor Riakhovskii</title><meta name="title" content="Изучаем протокол MMP и пишем альтернативный клиент | by Igor Riakhovskii"><meta name="description" content="Не для кого не секрет, что «Mail.ru Агент» стал довольно популярным IM проектом. Здесь вам и поддержка ICQ, XMPP, голосовых звонков и даже отправка..."><meta property="og:title" content="Изучаем протокол MMP и пишем альтернативный клиент"><meta property="og:description" content="Не для кого не секрет, что «Mail.ru Агент» стал довольно популярным IM проектом. Здесь вам и поддержка ICQ, XMPP, голосовых звонков и даже отправка..."><meta property="og:url" content="https://gariktalksabout.tech/izuchaem-protokol-mmp-i-pishem-alternativnyy-klient.html"><meta property="og:site_name" content="Igor Riakhovskii"><meta property="og:type" content="article"><meta property="article:published_time" content="2012-01-12T00:31:00+04:00"><meta property="article:modified_time" content="2025-01-29T18:37:45+03:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><meta property="article:tag" content="Network"><link rel="author" href="https://gariktalksabout.tech/"><link rel="canonical" href="https://gariktalksabout.tech/izuchaem-protokol-mmp-i-pishem-alternativnyy-klient.html"><script type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://gariktalksabout.tech/izuchaem-protokol-mmp-i-pishem-alternativnyy-klient.html","dateCreated":"2012-01-12T00:31:00+04:00","datePublished":"2012-01-12T00:31:00+04:00","dateModified":"2025-01-29T18:37:45+03:00","headline":"Изучаем протокол MMP и пишем альтернативный клиент","name":"Изучаем протокол MMP и пишем альтернативный клиент","description":"Не для кого не секрет, что «Mail.ru Агент» стал довольно популярным IM проектом. Здесь вам и поддержка ICQ, XMPP, голосовых звонков и даже отправка...","identifier":72285528,"author":{"@type":"Person","name":"Igor Riakhovskii","url":"https://gariktalksabout.tech/"},"creator":["Igor Riakhovskii"],"mainEntityOfPage":"https://gariktalksabout.tech/izuchaem-protokol-mmp-i-pishem-alternativnyy-klient.html"}</script><script src="/javascripts/header.js" defer></script></head><body><header class="header-panel"><div class="header-panel-wrap"><a class="header-panel-logo" href="/" rel="noopener follow">IR</a></div></header><main class="article-layout"><div class="container"><article><h1 class="post-title">Изучаем протокол MMP и пишем альтернативный клиент</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>4 min read</span><span class="separator">·</span><span>Jan 12, 2012</span></div></div></section><div class="post-content"><p>Не для кого не секрет, что «Mail.ru Агент» стал довольно популярным IM проектом. Здесь вам и поддержка ICQ, XMPP, голосовых звонков и даже отправка SMS, только вот компания Mail.ru совсем забыла о разработчиках.<br>
 <a href="http://agent.mail.ru/ru/developers/protocol.html" rel="noopener ugc nofollow" target="_blank">Официальная документация протокола обмена данными Mail.ru Агент</a> описывает версию протокола 1.7 реализованную в 2008 году. На данный момент сервер использует протокол версии 1.24.</p>
-<h1>Немного теории</h1>
+<h1 id="немного-теории">Немного теории</h1>
 <p>На первый взгляд в написании сетевого клиента нет ничего сложного, но в сетевом программировании есть множество «подводных камней». Без понимания деталей работы TCP/IP практически невозможно написать эффективное и стабильное приложение.</p>
-<h2>Целостность передаваемых данных</h2>
+<h2 id="целостность-передаваемых-данных">Целостность передаваемых данных</h2>
 <p>Как известно TCP – потоковый протокол, и хотя данные передаются в IP-пакетах, размер пакета напрямую не связан с количеством данных переданных TCP. Поэтому нельзя с уверенностью сказать что при вызове recv мы получим заданное количество байт.<br>
 Для получения данных заданной длинны я использую такую функцию</p>
 <pre><code class="hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> SEND 0</span>
@@ -30,7 +30,7 @@
 }
 </code></pre>
 <p>которая в случае успеха возвращает количество принятых/переданных байт равных len, 0 в случае, если соединение было разорвано либо закрыто и (минус) номер ошибки, в случае неудачи вызова функции send/recv.</p>
-<h2>Сбои в сети</h2>
+<h2 id="сбои-в-сети">Сбои в сети</h2>
 <p>Так же необходимо помнить о том, что TCP не выполняет опрос соединения. В случае с блокирующими сокетами при крахе сервера (разрыва соединения, сбоя) ждать ответа мы будем «вечно», программа попросту «зависнет».<br>
 Одним из способов определения разрыва соединения является – таймер контроля работоспособности (keep-alive).</p>
 <pre><code class="hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> SIO_KEEPALIVE_VALS _WSAIOW(IOC_VENDOR,4)</span>
@@ -53,7 +53,7 @@ alive.keepaliveinterval = <span class="hljs-number">1000</span>;
 WSAIoctl(my_sock, SIO_KEEPALIVE_VALS, &#x26;alive, <span class="hljs-keyword">sizeof</span>(alive),<span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>, &#x26;dwSize, <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>);
 </code></pre>
 <p>В нашем случае, если соединение будет не активно в течении 5 секунд, будет послано служебное сообщение, если на него не будет ответа, соединение закроется.</p>
-<h1>О протоколе</h1>
+<h1 id="о-протоколе">О протоколе</h1>
 <p>MMP бинарный асинхронный протокол. Бинарный означает, что данные передаются в виде пакетов определенной структуры:</p>
 <pre><code class="hljs language-c"><span class="hljs-comment">// заколовок пакета</span>
 <span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mrim_packet_header_t</span>
@@ -78,7 +78,7 @@ WSAIoctl(my_sock, SIO_KEEPALIVE_VALS, &#x26;alive, <span class="hljs-keyword">si
 <p>Асинхронность здесь характеризуется тем, что сервер поддерживая постоянное соединение с различными интервалами времени шлет клиенту пакеты данных, получив которые клиент может (а в некоторых случаях должен) отреагировать и отправить серверу ответ.</p>
 <p>Инициализирует соединение клиент, перед этим необходимо получить адрес «свободного» MMP сервера в текстовом формате <em>ip:port</em>, просто подключившись по адресу <strong>mrim.mail.ru</strong>. Официальный клиент версии 5.9 для подключения использует следующие порты: 2024, 80, 5190, 1863, 25, 110, 443.<br>
 Как сказано в официальной документации, после подключения по рекомендуемому адресу клиент должен послать пакет <code>MRIM_CS_HELLO</code>, дождаться <code>MRIM_CS_HELLO_ACK</code>, после чего отправить пакет авторизации, тут то и начинается самое интересное.</p>
-<h2>На самом деле</h2>
+<h2 id="на-самом-деле">На самом деле</h2>
 <p>Начиная с версии 1.22 (Mail.ru агент 5.7) изменился метод авторизации. Теперь для авторизации необходимо послать пакет <strong>0x1078</strong> (MRIM_CS_LOGIN3) с параметрами</p>
 <pre><code>LPS ## login ## email авторизующегося пользователя  
 LPS ## md5 password ## пароль зашифрованный в md5  
@@ -88,7 +88,7 @@ FFFFFFFF
 <p>На данный момент (версия протокола 1.24) протокол поддерживает обязательное шифрование. После получения пакета <code>MRIM_CS_HELLO_ACK</code> клиент посылает пакет 0x1086 и получает ответ 0x1087, после чего идет инициализация SSL соединения.<br>
 Но пока нам никто не запрещает использовать более ранние версии протокола.</p>
 <p>Важной особенностью работы клиента является то, что свои запросы клиент может посылать только после получения от сервера пакета <code>MRIM_CS_CONTACT_LIST2</code>, который в свою очередь посылается после успешной авторизации.</p>
-<h1>Проекты</h1>
+<h1 id="проекты">Проекты</h1>
 <p>Весь код MMP клиента занял бы много места, поэтому я предлагаю Вам скачать и изучить его самостоятельно. В архиве <a href="http://zona-chat.narod.ru/src/MMPclient_sample.25.04.2011.rar" rel="noopener ugc nofollow" target="_blank">MMPclient_sample.25.04.2011.rar</a>, находятся исходники на языке Си и проект Visual Studio.<br>
 <strong>UPD: <a href="https://github.com/Garik-/Simple-MMP-client" rel="noopener ugc nofollow" target="_blank">исходник на github</a></strong></p>
 <p>Для изучения протокола был написан небольшой SOCKS 5 сервер. Он позволяет в удобном виде отследить цепочку сообщений клиента и сервера. <a href="http://zona-chat.narod.ru/src/MMPsocks5_analiz.rar" rel="noopener ugc nofollow" target="_blank">Исходники сервера и проект</a> можете скачать здесь.</p>
@@ -98,7 +98,7 @@ FFFFFFFF
 <li><a href="https://forum.antichat.ru/thread133090.html" rel="noopener ugc nofollow" target="_blank">Mail.ru SMS sender</a> — программа для отправки SMS сообщений</li>
 <li><a href="https://forum.antichat.ru/thread170703.html" rel="noopener ugc nofollow" target="_blank">Bruteforce MMP</a> — подбор паролей сервиса Mail.ru</li>
 </ul>
-<h1>Ссылки</h1>
+<h1 id="ссылки">Ссылки</h1>
 <ul>
 <li><a href="http://agent.mail.ru/ru/download/agent_windows/old_versions.html" rel="noopener ugc nofollow" target="_blank">Все версии Mail.ru Агента</a></li>
 <li><a href="http://agent.mail.ru/ru/developers/protocol.html" rel="noopener ugc nofollow" target="_blank">Официальная документация по протоколу</a></li>

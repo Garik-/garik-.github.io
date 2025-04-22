@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1"><meta name="robots" content="index,noarchive,follow,max-image-preview:large"><meta name="referrer" content="unsafe-url"><link rel="stylesheet" href="/stylesheets/style.d0b9e4490a.css"><link rel="icon" href="/images/favicon.ico"><link rel="apple-touch-icon" href="/images/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><script src="/javascripts/counter.js" async></script><title>Гайд по поиску и устранению утечек памяти в Go сервисах | by Igor Riakhovskii</title><meta name="title" content="Гайд по поиску и устранению утечек памяти в Go сервисах | by Igor Riakhovskii"><meta name="description" content="Все просто, посмотреть на график изменения потребления памяти вашим сервисом в системе мониторинга.
 "><meta property="og:title" content="Гайд по поиску и устранению утечек памяти в Go сервисах"><meta property="og:description" content="Все просто, посмотреть на график изменения потребления памяти вашим сервисом в системе мониторинга.
-"><meta property="og:url" content="https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html"><meta property="og:site_name" content="Igor Riakhovskii"><meta property="og:type" content="article"><meta property="og:image" content="https://gariktalksabout.tech/v1/resize:fit:1200/20250121225602.png"><meta property="og:image:width" content="682"><meta property="og:image:height" content="270"><meta property="article:published_time" content="2022-03-22T03:32:00+03:00"><meta property="article:modified_time" content="2025-01-21T23:13:52+03:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><meta property="article:tag" content="Golang"><meta property="article:tag" content="Observability"><meta property="article:tag" content="Prometheus"><meta property="article:tag" content="Grafana"><meta property="article:tag" content="Docker"><meta property="article:tag" content="Memory Leak"><link rel="author" href="https://gariktalksabout.tech/"><link rel="canonical" href="https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html"><script type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html","dateCreated":"2022-03-22T03:32:00+03:00","datePublished":"2022-03-22T03:32:00+03:00","dateModified":"2025-01-21T23:13:52+03:00","headline":"Гайд по поиску и устранению утечек памяти в Go сервисах","name":"Гайд по поиску и устранению утечек памяти в Go сервисах","description":"Все просто, посмотреть на график изменения потребления памяти вашим сервисом в системе мониторинга.\n","identifier":73180712,"author":{"@type":"Person","name":"Igor Riakhovskii","url":"https://gariktalksabout.tech/"},"creator":["Igor Riakhovskii"],"mainEntityOfPage":"https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html","image":["https://gariktalksabout.tech/v1/resize:fit:1200/20250121225602.png"]}</script><script src="/javascripts/header.js" defer></script></head><body><header class="header-panel"><div class="header-panel-wrap"><a class="header-panel-logo" href="/" rel="noopener follow">IR</a></div></header><main class="article-layout"><div class="container"><article><h1 class="post-title">Гайд по поиску и устранению утечек памяти в Go сервисах</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>5 min read</span><span class="separator">·</span><span>Mar 22, 2022</span></div></div></section><div class="post-content"><h1>Как обнаружить утечку?</h1>
+"><meta property="og:url" content="https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html"><meta property="og:site_name" content="Igor Riakhovskii"><meta property="og:type" content="article"><meta property="og:image" content="https://gariktalksabout.tech/v1/resize:fit:1200/20250121225602.png"><meta property="og:image:width" content="682"><meta property="og:image:height" content="270"><meta property="article:published_time" content="2022-03-22T03:32:00+03:00"><meta property="article:modified_time" content="2025-01-21T23:13:52+03:00"><meta property="profile:first_name" content="Igor"><meta property="profile:last_name" content="Riakhovskii"><meta property="profile:username" content="garikdjan"><meta property="article:tag" content="Golang"><meta property="article:tag" content="Observability"><meta property="article:tag" content="Prometheus"><meta property="article:tag" content="Grafana"><meta property="article:tag" content="Docker"><meta property="article:tag" content="Memory Leak"><link rel="author" href="https://gariktalksabout.tech/"><link rel="canonical" href="https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html"><script type="application/ld+json">{"@context":"http://schema.org","@type":"NewsArticle","url":"https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html","dateCreated":"2022-03-22T03:32:00+03:00","datePublished":"2022-03-22T03:32:00+03:00","dateModified":"2025-01-21T23:13:52+03:00","headline":"Гайд по поиску и устранению утечек памяти в Go сервисах","name":"Гайд по поиску и устранению утечек памяти в Go сервисах","description":"Все просто, посмотреть на график изменения потребления памяти вашим сервисом в системе мониторинга.\n","identifier":73180712,"author":{"@type":"Person","name":"Igor Riakhovskii","url":"https://gariktalksabout.tech/"},"creator":["Igor Riakhovskii"],"mainEntityOfPage":"https://gariktalksabout.tech/gayd-po-poisku-i-ustraneniyu-utechek-pamyati-v-go-servisah.html","image":["https://gariktalksabout.tech/v1/resize:fit:1200/20250121225602.png"]}</script><script src="/javascripts/header.js" defer></script></head><body><header class="header-panel"><div class="header-panel-wrap"><a class="header-panel-logo" href="/" rel="noopener follow">IR</a></div></header><main class="article-layout"><div class="container"><article><h1 class="post-title">Гайд по поиску и устранению утечек памяти в Go сервисах</h1><section class="post-info"><a class="author-photo-link" rel="noopener follow" href="/"><img class="author-photo" alt="Igor Riakhovskii" src="/v1/resize:fill:88:88/public/avatar.jpg" width="44" height="44" loading="lazy"><div class="author-photo-shadow"></div></a><div class="post-info-author"><a class="author-name" rel="noopener follow" href="/">Igor Riakhovskii</a><div class="post-info-date"><span>5 min read</span><span class="separator">·</span><span>Mar 22, 2022</span></div></div></section><div class="post-content"><h1 id="как-обнаружить-утечку">Как обнаружить утечку?</h1>
 <p>Все просто, посмотреть на график изменения потребления памяти вашим сервисом в системе мониторинга.</p>
 
   <figure>
@@ -23,7 +23,7 @@
   </figure>
   
 <p>На всех этих картинках видно, что график потребления памяти только растет со временем, но никогда не убывает. Интервал может быть любым, посмотрите график за день, неделю или месяц.</p>
-<h1>Как настроить мониторинг?</h1>
+<h1 id="как-настроить-мониторинг">Как настроить мониторинг?</h1>
 <p>Тестировать наш сервис мы будем локально без помощи DevOps-инженеров. Для работы нам понадобится git, Docker и терминал, а разворачивать мы будем связку Grafana и Prometheus.</p>
 <p><strong>Grafana</strong> это интерфейс для построения красивых графиков, диаграмм и dashboard-ов из них. <strong>Prometheus</strong> это система, которая включает в себя базу данных временных рядов и специального агента, который занимается сбором метрик с ваших сервисов.</p>
 <p>Для того что бы быстро развернуть это всё на локальной машине воспользуемся готовым решением <a href="https://github.com/vegasbrianc/prometheus" rel="noopener ugc nofollow" target="_blank">https://github.com/vegasbrianc/prometheus</a>:</p>
@@ -32,7 +32,7 @@ $ <span class="hljs-built_in">cd</span> prometheus
 $ HOSTNAME=$(hostname) docker stack deploy -c docker-stack.yml prom
 </code></pre>
 <p>После запуска по ссылке <code>http://&#x3C;Host IP Address>:3000</code> у нас должна открыться Grafana. Читайте README в репозитории, там всё подробно расписано.</p>
-<h2>Prometheus client</h2>
+<h2 id="prometheus-client">Prometheus client</h2>
 <p>Теперь нам нужно научить наш сервис отдавать метрики, для этого нам понадобится <a href="https://prometheus.io/docs/instrumenting/clientlibs/" rel="noopener ugc nofollow" target="_blank">Prometheus client</a>.</p>
 <p><a href="https://github.com/prometheus/client_golang/blob/main/examples/simple/main.go" rel="noopener ugc nofollow" target="_blank">Код примера из официального репозитория</a></p>
 <pre><code class="hljs language-go"><span class="hljs-keyword">package</span> main
@@ -60,7 +60,7 @@ http.Handle(<span class="hljs-string">"/metrics"</span>, promhttp.Handler())
 <span class="hljs-comment">// ...</span>
 </code></pre>
 <p>После запуска проверьте, что на endpoint-е <code>/metrics</code> появились данные.</p>
-<h2>Добавляем job в Prometheus agent</h2>
+<h2 id="добавляем-job-в-prometheus-agent">Добавляем job в Prometheus agent</h2>
 <p>В папке репозитория prometheus найдите файлик prometheus.yml, там есть секция scrape_configs, добавьте туда свою job-у</p>
 <pre><code class="hljs language-yaml"><span class="hljs-attr">scrape_configs:</span>
   <span class="hljs-bullet">-</span> <span class="hljs-attr">job_name:</span> <span class="hljs-string">'my-service'</span>
@@ -82,9 +82,9 @@ en0: flags=8863&#x3C;UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
 <p>Так же не забудьте поменять в своём сервисе IP адрес запуска, сейчас там прописано <code>":8080"</code> что по факту означает IP адрес текущей машины <code>127.0.0.1</code>, для верности напишите <code>"192.168.1.4:8080"</code></p>
 <pre><code class="hljs language-go"><span class="hljs-keyword">var</span> addr = flag.String(<span class="hljs-string">"listen-address"</span>, <span class="hljs-string">"192.168.1.4:8080"</span>, <span class="hljs-string">"The address to listen on for HTTP requests."</span>)
 </code></pre>
-<h3>Зачем прописывать IP?</h3>
+<h3 id="зачем-прописывать-ip">Зачем прописывать IP?</h3>
 <p>Дело в том что docker stack в данной конфигурации запускает Grafana и Prometheus в своем изолированном network-е, они не видят ваш localhost, он у них свой. Конечно можно запустить ваш сервис в контексте сети docker-а, но прописать прямой IP локального интерфейса это самый простой путь подружить контейнеры запущенные внутри сети докера с вашими сервисами запущенными локально.</p>
-<h3>Применяем настройки</h3>
+<h3 id="применяем-настройки">Применяем настройки</h3>
 <p>В папке с репозиторием выполняем команды</p>
 <pre><code class="hljs language-sh">$ docker stack <span class="hljs-built_in">rm</span> prom
 $ HOSTNAME=$(hostname) docker stack deploy -c docker-stack.yml prom
@@ -100,10 +100,10 @@ $ HOSTNAME=$(hostname) docker stack deploy -c docker-stack.yml prom
     
   </figure>
   
-<h2>Настраиваем Grafana</h2>
+<h2 id="настраиваем-grafana">Настраиваем Grafana</h2>
 <p>Тут всё просто, надо поискать красивый dashboard для Go на <a href="https://grafana.com/grafana/dashboards/" rel="noopener ugc nofollow" target="_blank">официальном сайте</a> и импортировать его себе.</p>
 <p>Лично мне понравился этот: <a href="https://grafana.com/grafana/dashboards/14061" rel="noopener ugc nofollow" target="_blank">ссылка на dashboard</a>.</p>
-<h1>Нагрузочное тестирование</h1>
+<h1 id="нагрузочное-тестирование">Нагрузочное тестирование</h1>
 <p>Что бы выявить утечку сервис нужно нагрузить реальной работой. В веб разработке основные транспортные протоколы между беком и фронтом это HTTP и Web Socket. Для них существует масса утилит нагрузочного тестирования, например</p>
 <pre><code class="hljs language-sh">$ ab -n 10000 -kc 100 http://192.168.1.4:8080/endpoint
 $ wrk -c 100 -d 10 -t 2 http://192.168.1.4:8080/endpoint
@@ -144,7 +144,7 @@ $ wrk -c 100 -d 10 -t 2 http://192.168.1.4:8080/endpoint
     
   </figure>
   
-<h2>На что стоит обратить внимание</h2>
+<h2 id="на-что-стоит-обратить-внимание">На что стоит обратить внимание</h2>
 <p>Кроме памяти стоит посмотреть, как ведут себя ваши goroutine. Часто проблемы бывают из-за того что рутина остается "висеть" и вся память выделенная ей и все переменные указатели на которые попали в нее остаются "висеть" мертвым грузом в памяти и не удаляются garbage collector-ом. Вы так же увидите это на графике. Банальный пример обработчик запроса в котором запускается рутина для "тяжелых" вычислений:</p>
 <pre><code class="hljs language-go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *Service)</span></span> Debug(w http.ResponseWriter, r *http.Request) {
   <span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> { <span class="hljs-comment">/*...*/</span> }()

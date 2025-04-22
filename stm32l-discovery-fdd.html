@@ -11,14 +11,14 @@
   </figure>
   
 <p>Для того что бы подключить STM32L-DISCOVERY к FDD тебе понадобится 4 провода и 2 джампера.</p>
-<h1>Всё что нужно знать о Floppy Disk Drive</h1>
+<h1 id="всё-что-нужно-знать-о-floppy-disk-drive">Всё что нужно знать о Floppy Disk Drive</h1>
 <ul>
 <li><a href="http://www.interfacebus.com/PC_Floppy_Drive_PinOut.html" rel="noopener ugc nofollow" target="_blank">Floppy Disk Drive Pinout</a> — очень подробно;</li>
 <li><a href="http://quantumnet.wikidot.com/interfacing-a-floppy-drive" rel="noopener ugc nofollow" target="_blank">Interfacing A Floppy Drive</a> — здесь расписан псевдокод операций чтения и записи;</li>
 <li><a href="http://www.duinomite.com/duinomite-plays-the-imperial-march/" rel="noopener ugc nofollow" target="_blank">Duinomite plays the Imperial march</a> — пример подключения девайса.</li>
 </ul>
 <p>P.S: Время ночь, это моя первая заметка на данную тематику, особых познаний у меня нет, всё подробно расписано на тематических ресурсах, но на то что бы с этим разобраться пришлось потратить уйму времени. В планах сделать из дисковода <a href="http://en.wikipedia.org/wiki/Ring_Tone_Transfer_Language" rel="noopener ugc nofollow" target="_blank">RTTTL</a> плеер.</p>
-<h1>С чего начать?</h1>
+<h1 id="с-чего-начать">С чего начать?</h1>
 <p>Если посмотреть распиновку разъема то все входы/выходы являются четными, нечетные ножки это земля (GND). На дисководе должен быть зазор, что бы правильно вставить шлейф, переверни девайс зазором вниз, верхняя левая ножка это 2.</p>
 
   <figure>
@@ -30,7 +30,7 @@
     
   </figure>
   
-<h2>Логические уровни TTL</h2>
+<h2 id="логические-уровни-ttl">Логические уровни TTL</h2>
 <blockquote>
 <p>In anycase the floppy interface used 5v TTL as the electrical interface, which would also comply with LVTTL switching levels.</p>
 </blockquote>
@@ -54,7 +54,7 @@ An Output high voltage of 2.4 volts and and input low voltage of 0.5 volts.</p>
   </figure>
   
 <p>Припаиваем два проводка к плате дисковода (на 1 и 2 пин) и втыкаем в EXT_5V и GND на STM32L-DISCOVERY.</p>
-<h1>Как управлять FDD?</h1>
+<h1 id="как-управлять-fdd">Как управлять FDD?</h1>
 <p>Для управления шаговым двигателем дисковода используется два пина, 18 DIR «Direction» и 20 STEP «Step».<br>
 Сначала нужно задать направление движения подав LOW (0) или HIGH (1) на DIR, а после этого сдвинуть головку на один трек:</p>
 <blockquote>
@@ -62,7 +62,7 @@ An Output high voltage of 2.4 volts and and input low voltage of 0.5 volts.</p>
 Delay(1mS)<br>
 Step=HIGH</p>
 </blockquote>
-<h2>Пишем тестовую прошивку</h2>
+<h2 id="пишем-тестовую-прошивку">Пишем тестовую прошивку</h2>
 <pre><code class="hljs language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"stm32l1xx.h"</span></span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"stm32l1xx_rcc.h"</span></span>
 
